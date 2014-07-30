@@ -1,0 +1,34 @@
+#!/bin/bash
+#
+# Description: prints p4 information of a specific changelist
+# Author: Arnon Zilca
+#
+
+set -e
+
+if [[ $# -ne 2 ]]; then
+    echo "usage: $(basename $0) file line"
+    exit 1
+fi
+
+source p4-help-functions
+
+FILE="$1"
+LINE="$2"
+DESCRIPTION_LINE="2"
+CHANGELISTS_INNER_TEXT="CL,cl,Changelist,changelist,copy from,edit from,merge from"
+
+changelist=$(p4 annotate -cq ${FILE} | sed -e "${LINE}q;d" | sed -e 's/:.*//g')
+
+if [[ -z $changelist ]]; then
+    echo -e "${RED}Annotation not found... :(${NO_COLOR}"
+    exit 2
+fi
+
+while [[ -n "$changelist" ]] && [[ "$changelist" != *[!0-9]* ]]; do # exist && a number
+    res=$(p4-show-changelist "$changelist")
+    echo "$res"
+    echo
+    # extract inner changelist (if exists)
+    changelist=$(echo "$res" | sed -e "${DESCRIPTION_LINE}q;d" | sed -r "s/.*[${CHANGELISTS_INNER_TEXT}][ ,-]([0-9]*).*/\1/g")
+done

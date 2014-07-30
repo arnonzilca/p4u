@@ -1,0 +1,180 @@
+#!/bin/bash
+#
+# Description: prints p4 changelists information (formatted and colored)
+# Author: Arnon Zilca
+#
+
+set -e
+
+source p4-help-functions
+
+usage() {
+    echo -en "${NO_COLOR}"
+    echo    "$(basename $0) -- prints p4 changelists information"
+    echo    "usage: $(basename $0) [options]"
+    echo    "  -h           shows this help"
+    echo    "  -v           force verbose printing - including pending & shelved filenames"
+    echo    "  -b           force brief printing - no filenames (inferior to -v)"
+    echo    "  -n           no colors"
+    echo    "  -a           show all changelists, not just pending (sets brief printing) "
+    echo    "  -d           show only the default changelist (sets verbose printing)"
+    echo    "  -l           skip changelists limit check ($NUMBER_OF_CHANGELISTS_LIMIT)"
+    echo    "  -m max       show the 'max' most recent changelists (not including the default changelist)"
+    echo -n "  -c client    filter by client (current default client is: "
+    if [[ "$CLIENT_NAME" == "$HOSTNAME" ]]; then
+        # perforce returns the hostname when not in a p4 client dir
+        echo -e "${RED}Not inside a p4 client directory?${NO_COLOR})"
+    else
+        echo "$CLIENT_NAME)"
+    fi
+    echo    "  -u user      filter by user (the default in your case is $USER)"
+    echo    "               - this option cancels filter by default client."
+}
+
+show-default-changelist() {
+    if [[ $1 == "-b" ]]; then
+        BRIEF_PRINT=1
+        shift
+    fi
+
+    local default_changelist=$(p4 opened $@ 2> /dev/null)
+    local default_changelist=$(echo "$default_changelist" | grep "$P4_DEFAULT_CHANGE" || true) #P4_DEFAULT_CHANGE from p4-help-functions
+
+    if [[ -n "$default_changelist" ]]; then
+        echo -en "${PURPLE}"
+        echo "Default changelist"
+        echo -en "${NO_COLOR}"
+
+        if [[ -z "$BRIEF_PRINT" ]]; then
+            echo -en "${BLUE}"
+            echo "    Pending Files:"
+            echo -en "${NO_COLOR}"
+            echo "$default_changelist"
+        fi
+        return 0
+    else
+        return 1
+    fi
+}
+
+VERBOSE_PRINT_SOFT_LIMIT=4
+NUMBER_OF_CHANGELISTS_LIMIT=25
+
+#setting up default flags
+CHANGELISTS_SHOWN_FLAG="-s pending"
+USER_FLAG="-u $USER"
+CLIENT_NAME=$(p4-client-name)   # sourced in p4-help-functions
+LIMIT_CHECK=1
+
+while getopts "h?vbnadlm:c:u:" opt; do
+    case "${opt}" in
+        h)
+            usage
+            exit 0
+            ;;
+        v)
+            FORCE_VERBOSE=1
+            ;;
+        b)
+            FORCE_BRIEF="-b"
+            ;;
+        n)
+            uncolor  # sourced in p4-help-functions
+            ;;
+        a)
+            CHANGELISTS_SHOWN_FLAG=
+            BRIEF_PRINT=1
+            ;;
+        d)
+            ONLY_DEFAULT_CHANGELIST=1
+            FORCE_VERBOSE=1
+            ;;
+        l)
+            LIMIT_CHECK=
+            ;;
+        m)
+            RECENT_FLAG="-m $OPTARG"
+            LIMIT_CHECK=
+            ;;
+        c)
+            CLIENT_NAME="$OPTARG"
+            ;;
+        u)
+            USER_FLAG="-u $OPTARG"
+            CLIENT_NAME=
+            ;;
+        *)
+            usage
+            exit 1
+            ;;
+    esac
+done
+shift $((OPTIND-1))
+
+if [[ "$CLIENT_NAME" == "$HOSTNAME" ]]; then
+    # perforce returns the hostname when not in a p4 client dir
+    echo -e "${RED}Not inside a p4 client directory - can't determine default client.${NO_COLOR}"
+    echo -e "${RED}Move to a p4 client directory, or use the -c option.${NO_COLOR}"
+    usage
+    exit 2
+fi
+
+if [[ -n "$CLIENT_NAME" ]]; then
+    CLIENT_FLAG="-c $CLIENT_NAME"
+    CLIENT_FLAG_FOR_OPEN="-C $CLIENT_NAME"  # p4 open requires capital C for client.
+fi
+
+if [[ -n $FORCE_VERBOSE ]]; then  # verbose takes precendence over brief
+    FORCE_BRIEF=
+fi
+
+default_changelist=$(show-default-changelist $FORCE_BRIEF $USER_FLAG $CLIENT_FLAG_FOR_OPEN &)
+
+if [[ -z "${ONLY_DEFAULT_CHANGELIST}" ]]; then
+    changelists=$(p4 changes $CHANGELISTS_SHOWN_FLAG $USER_FLAG $CLIENT_FLAG $RECENT_FLAG) # split inorder to catch a login error.
+    changelists=$(echo "$changelists" | awk '{print $2}')
+    #echo "p4 changes $CHANGELISTS_SHOWN_FLAG $USER_FLAG $CLIENT_FLAG $RECENT_FLAG"
+
+    if [[ -n "${changelists}" ]]; then
+        number_of_changelists=$(echo "$changelists" | wc -l)
+        if [[ "$number_of_changelists" -gt "$VERBOSE_PRINT_SOFT_LIMIT" ]]; then
+            BRIEF_PRINT=1
+        fi
+
+        if [[ -n $FORCE_BRIEF ]]; then
+            BRIEF_PRINT=1
+        fi
+
+        if [[ -n $FORCE_VERBOSE ]]; then
+            BRIEF_PRINT=
+        fi
+
+        if [[ "$number_of_changelists" -gt "$NUMBER_OF_CHANGELISTS_LIMIT" ]] && [[ -n "$LIMIT_CHECK" ]]; then
+            echo    "There are $number_of_changelists changelists which answer your critereia!"
+            echo    "(You can disable this check using the -l option or you can limit the displyed changelists using the -m option)."
+            if ! promptyn "So, Have you flipped your wig? (continue?) [Y/n]"; then    # sourced in p4-help-functions
+                exit 0;
+            fi
+        fi
+
+        # using gnu parallel:
+        # this will run p4-show-changelist for each changelist in 'changelists'.
+        # it will also pass the BRIEF_PRINT single argument to each run.
+        parallel --no-notice p4-show-changelist ::: $changelists ::: $BRIEF_PRINT 2> /dev/null || {
+            # if parallel doesn't exist paralleling manualy
+            echo "${RED}Maybe it's time to install gnu's parallel (this script will work a lot faster...)${NO_COLOR}"
+            i=1
+            for changelist in $changelists; do
+                echo -ne "${CYAN}[${i}/${number_of_changelists}]${NO_COLOR} "
+                p4-show-changelist $changelist $BRIEF_PRINT
+                #echo "$(p4-show-changelist $changelist $BRIEF_PRINT)" &
+                i=$((${i}+1))
+            done
+        }
+    fi
+fi
+
+wait
+if [[ -n "$default_changelist" ]]; then
+    echo -e "$default_changelist"
+fi

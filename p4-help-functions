@@ -1,0 +1,72 @@
+#!/bin/bash
+#
+# Description: holds helper functions for p4 scripts
+# Author: Arnon Zilca
+#
+
+P4_DEFAULT_CHANGE="default change"
+
+if [[ -z "$UNCOLOR" ]]; then
+    if [[ -n "$HAS_COLORS" ]] || [[ -t 1 ]]; then
+        RED=$(tput setaf 1)
+        GREEN=$(tput setaf 2)
+        YELLOW=$(tput setaf 3)
+        BLUE=$(tput setaf 4)
+        PURPLE=$(tput setaf 5)
+        CYAN=$(tput setaf 6)
+        NO_COLOR=$(tput sgr0)
+        export HAS_COLORS=1
+    fi
+fi
+
+uncolor() {
+    UNCOLOR=1
+
+    BLUE=""
+    RED=""
+    PURPLE=""
+    YELLOW=""
+    GREEN=""
+    CYAN=""
+    NO_COLOR=""
+}
+
+promptyn() {
+    while true; do
+        read -p "$1 " yn
+        case $yn in
+            [Yy]*|"" ) return 0;;
+            [Nn]* ) return 1;;
+            * ) echo "Please answer yes or no.";;
+        esac
+    done
+}
+
+p4-client-name() {
+    local CLIENT_NAME_FIELD="Client name: "
+    p4 info | grep "$CLIENT_NAME_FIELD" | sed "s/$CLIENT_NAME_FIELD//g"
+}
+
+p4-client-path() {
+    local CLIENT_PATH_FIELD="Client root: "
+    p4 info | grep "$CLIENT_PATH_FIELD" | sed "s/$CLIENT_PATH_FIELD//g"
+}
+
+p4-fix-hostname() {
+    CLIENT="$1"
+    FORCE="$2"
+
+    client_hostname="$(p4 client -o $CLIENT | grep "^Host" | awk '{print $2}')"
+    if [[ "$client_hostname" != "$HOSTNAME" ]]; then
+        echo "Client hostname ($client_hostname) differs from current hostname ($HOSTNAME)"
+        if [[ -z "$FORCE" ]]; then
+            if ! promptyn "Are you sure you want to continue? (Y/n)"; then
+                echo -e "${CYAN}Saved by the bell.${NO_COLOR}"
+                exit 0
+            fi
+        else
+            echo "Deleting anyway..."
+        fi
+        p4 client -o $CLIENT | sed "/^Host:/ s=$client_hostname=$HOSTNAME=" | p4 client -i > /dev/null
+    fi
+}

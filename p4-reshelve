@@ -1,0 +1,20 @@
+#!/bin/bash
+#
+# Description: reshelves a p4 shelved changelist
+#              deletes the current shevlve of a p4 changelist and
+#              shelves the current pending changelist.
+# Author: Arnon Zilca
+#
+
+set -e
+
+if [[ $# -ne 1 || "$1" == "-h" ]]; then
+    echo "usage: $(basename $0) shelved-changelist"
+    echo "Description: deletes the current shevlve of a p4 changelist and"
+    echo "shelves the current pending changelist."
+    exit 1
+fi
+
+p4 shelve -d -c "$1"
+echo -n "Re"
+p4 shelve -c "$1"

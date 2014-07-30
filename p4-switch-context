@@ -1,0 +1,156 @@
+#!/bin/bash
+#
+# Description: changes perforce context
+#  (shelving all pending and unshelving a certain changelist if passed as an argument)
+# Author: Arnon Zilca
+#
+
+set -e
+
+source p4-help-functions
+
+usage() {
+    echo -en "${NO_COLOR}"
+    echo    "$(basename $0) -- shelves all current changelists and unshelves a certain changelists if passed"
+    echo    "usage: $(basename $0) [options] [changelist]"
+    echo    "  -h   shows this help"
+    echo    "  -s   sync after unshelve"
+    echo    "  -r   resolve conflicts"
+}
+
+has-default-changelist() {
+    #P4_DEFAULT_CHANGE from p4-help-functions
+    return $(p4 opened 2> /dev/null | grep "$P4_DEFAULT_CHANGE" > /dev/null)
+}
+
+is-changelist-shelved() {
+    CHANGELIST="$1"
+    describe_shelved=$(p4 describe -S "${CHANGELIST}")
+    shelved_files_line=$(echo "${describe_shelved}" | grep -n "Shelved files" | sed "s/:.*//")
+    shelved_files_line=$(( ${shelved_files_line} + 2 ))
+
+    shelved_first_file=$(echo "${describe_shelved}" | sed "${shelved_files_line}q;d")
+
+    if [[ -n "${shelved_first_file}" ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+is-changelist-has-pending-files() {
+    CHANGELIST="$1"
+    describe_pending=$(p4 describe -s "${CHANGELIST}")
+    pending_files_line=$(echo "${describe_pending}" | grep -n "Affected files" | sed "s/:.*//")
+    pending_files_line=$(( ${pending_files_line} + 2 ))
+
+    pending_first_file=$(echo "${describe_pending}" | sed "${pending_files_line}q;d")
+
+    if [[ -n "${pending_first_file}" ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+#setting up default flags
+CLIENT_NAME=$(p4-client-name)   # sourced in p4-help-functions
+
+while getopts "h?sr" opt; do
+    case "${opt}" in
+        h)
+            usage
+            exit 0
+            ;;
+        s)
+            DO_SYNC=1
+            ;;
+        r)
+            DO_RESOLVE=1
+            ;;
+        *)
+            usage
+            exit 1
+            ;;
+    esac
+done
+shift $((OPTIND-1))
+
+CONTEXT_CHANGELIST="$1"
+
+if [[ -n "${CONTEXT_CHANGELIST}" ]]; then
+    if ! is-changelist-shelved "${CONTEXT_CHANGELIST}"; then
+        echo -e "${RED}Destination context changelist (${CONTEXT_CHANGELIST}) is not shelved.${NO_COLOR}"
+        usage
+        exit 3
+    fi
+
+    if is-changelist-has-pending-files "${CONTEXT_CHANGELIST}"; then
+        echo "Destination context changelist (${CONTEXT_CHANGELIST}) has pending files."
+        if ! promptyn "Do you wish to revert them before unshelving? [Y/n]"; then
+            exit 4
+        fi
+    fi
+fi
+
+if [[ -z "${CLIENT_NAME}" ]] || [[ "${CLIENT_NAME}" == "$HOSTNAME" ]]; then
+    # perforce returns the hostname when not in a p4 client dir
+    echo -e "${RED}Not inside a p4 client directory - can't determine default client.${NO_COLOR}"
+    echo -e "${RED}Move to a p4 client directory.${NO_COLOR}"
+    usage
+    exit 5
+fi
+
+while has-default-changelist; do
+    echo -e "${RED}Can't switch context while there's a pending default changelist${NO_COLOR}"
+    if ! promptyn "Do you wish to run p4 change? [Y/n]"; then    # sourced in p4-help-functions
+        exit 6
+    fi
+    p4 change
+done
+
+changelists=$(p4 changes -s pending -u $USER -c $CLIENT_NAME) # split inorder to catch a login error.
+changelists=$(echo "$changelists" | awk '{print $2}')
+
+if [[ -z "${changelists}" ]]; then
+    echo -e "${RED}No open changelists.${NO_COLOR}"
+    usage
+    exit 7
+fi
+
+for changelist in $changelists; do
+    if [[ "${changelist}" -ne "${CONTEXT_CHANGELIST}" ]]; then
+        if is-changelist-has-pending-files "${changelist}"; then
+            if is-changelist-shelved "${changelist}"; then
+                echo "Changelist ${changelist} is already shelved."
+                if ! promptyn "Do you wish to delete the current shelve and reshelve it? [Y/n]"; then    # sourced in p4-help-functions
+                    exit 8
+                fi
+                p4-reshelve ${changelist}
+            else
+                p4 shelve -c ${changelist}
+            fi
+        fi
+    fi
+done
+
+# all changelists are shelved and there is no default changelist - revert all!
+p4-revert-all-opened
+
+if [[ -n "${CONTEXT_CHANGELIST}" ]]; then
+    #unshelve context changelist
+    p4-unshelve "${CONTEXT_CHANGELIST}"
+
+    #delete context changelist shelve
+    p4 shelve -d -c "${CONTEXT_CHANGELIST}"
+fi
+
+if [[ -n ${DO_SYNC} ]]; then
+    echo
+    echo "Syncing . . ."
+    p4 sync
+fi
+
+if [[ -n ${DO_RESOLVE} ]]; then
+    p4 resolve
+fi

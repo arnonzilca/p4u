@@ -1,0 +1,15 @@
+#!/bin/bash
+#
+# Description: unshelves a p4 changelist to its own changelist
+# Author: Arnon Zilca
+#
+
+set -e
+
+if [[ $# -ne 1 || "$1" == "-h" ]]; then
+    echo "usage: $(basename $0) shelved-changelist"
+    echo "Description: unshelves a p4 changelist to its own changelist"
+    exit 1
+fi
+
+p4 unshelve -s "$1" -c "$1"

@@ -1,0 +1,82 @@
+#!/bin/bash
+#
+# Description: prints p4 information of a specific changelist
+# Author: Arnon Zilca
+#
+
+set -e
+
+if [[ $# -lt 1 ]]; then
+echo "usage: $(basename $0) changelist"
+    exit 1
+fi
+
+source p4-help-functions
+
+AFFECTED_TEXT="Affected files"
+SHELVED_TEXT="Shelved files"
+REVIEW_TEXT="ReviewBoard"
+BUG_TEXT="Jobs fixed"
+
+BRIEF_PRINT="$2"
+pending=$(p4 describe -s $1)    # split inorder to catch a login error.
+pending=$(echo "$pending" | sed '/^$/d')
+shelved=$(p4 describe -Ss $1 2> /dev/null | sed '/^$/d')
+
+echo -en "${PURPLE}"
+echo "${pending}" | head -n 2
+echo -en "${NO_COLOR}"
+
+review=$(echo "${pending}" | grep "${REVIEW_TEXT}" || true)
+if [[ -n "${review}" ]]; then
+    echo -en "${YELLOW}"
+    echo "${review}"
+    echo -en "${NO_COLOR}"
+fi
+
+bugs=$(echo "${pending}" | grep -n "${BUG_TEXT}" || true)
+if [[ -n "${bugs}" ]]; then
+    bugs_start_line=$(echo "${bugs}" | cut -f1 -d:)
+    bugs_start_line=$(( bugs_start_line + 1 ))
+    bugs_end_line="$(echo "${pending}" | grep -n "${AFFECTED_TEXT}" | cut -f1 -d:)"
+    bugs_end_line=$(( bugs_end_line - 1 ))
+    bugs_text=$(echo "${pending}" | sed -n "${bugs_start_line},${bugs_end_line}p" )
+    echo -en "${GREEN}"
+    echo -n "        Bugs Fixed: "
+
+    while read -r line1 && read -r line2; do
+        echo -n "${bugs_print_spaces}${line1}"  # print bug#, user & state
+        echo " - ${line2}"                      # print bug's description
+        bugs_print_spaces="                    "
+    done <<< "$bugs_text"
+
+    echo -en "${NO_COLOR}"
+fi
+
+if [[ -z "$BRIEF_PRINT" ]]; then
+    if echo "${pending}" | grep "${AFFECTED_TEXT}" > /dev/null; then
+        pending_lines="$(echo "${pending}" | grep -n "${AFFECTED_TEXT}" | cut -f1 -d:)"
+        pending_lines=$(( $pending_lines + 1 ))
+        pending="$(echo "${pending}" | tail -n+${pending_lines})"
+
+        if [[ -n "${pending}" ]]; then
+            echo -en "${BLUE}"
+            echo "    Pending Files:"
+            echo -en "${NO_COLOR}"
+            echo "${pending}"
+        fi
+    fi
+    if echo "${shelved}" | grep "${SHELVED_TEXT}" > /dev/null; then
+        shelved_lines="$(echo "${shelved}" | grep -n "${SHELVED_TEXT}" | cut -f1 -d:)"
+        shelved_lines=$(( $shelved_lines + 1 ))
+        shelved="$(echo "${shelved}" | tail -n+${shelved_lines})"
+
+        if [[ -n "${shelved}" ]]; then
+            echo -en "${RED}"
+            echo "    Shelved Files:"
+            echo -en "${NO_COLOR}"
+            echo "${shelved}"
+        fi
+    fi
+fi
+echo

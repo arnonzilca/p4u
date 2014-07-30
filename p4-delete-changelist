@@ -1,0 +1,40 @@
+#!/bin/bash
+#
+# Description: deletes a p4 changelist completely.
+#              removes its shelve, reverts the files
+#              and deletes the changelist.
+# Author: Arnon Zilca
+#
+
+set -e
+
+source "p4-help-functions" || true
+
+if [[ $# -lt 1 ]]; then
+echo "usage: $(basename $0) changelist[s]"
+echo "Description: removes shelve, reverts files and finally deletes changelist."
+    exit 1
+fi
+
+if [[ "$1" == "-f" ]]; then
+    FORCE=1
+    shift
+fi
+
+for CHANGELIST in "$@"; do
+    #make sure changelist exist.
+    p4 describe -s $CHANGELIST > /dev/null # set -e will exit automatically if fails
+
+    client=$(p4 change -o $CHANGELIST | awk '/^Client:/{print $2}')
+
+    p4-fix-hostname "$client" "$FORCE" || true
+
+    p4 -c ${client} shelve -d -c $CHANGELIST 2> /dev/null || true
+    files_to_revert=$(p4 -c "${client}" opened 2> /dev/null | grep "change $CHANGELIST" | sed "s/#.*//g") # sed returns true even for empty answer
+    if [[ -n "$files_to_revert" ]]; then
+    p4 -c ${client} revert $files_to_revert
+    fi
+
+    p4 fix -d -c $CHANGELIST `p4 fixes -c $CHANGELIST | cut -f 1 -d ' ' | xargs`
+    p4 -c ${client} change -d $CHANGELIST
+done

@@ -1,0 +1,14 @@
+#!/bin/bash
+#
+# Description: prints p4 changelists information (formatted and colored)
+# Author: Arnon Zilca
+#
+
+set -e
+
+opened=$(p4 opened) # split inorder to catch a login error.
+opened=$(echo "$opened" | sed "s/#.*//g")
+
+if [[ -n "$opened" ]]; then
+    p4 revert $opened
+fi
