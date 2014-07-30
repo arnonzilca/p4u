@@ -14,7 +14,12 @@ clone this repository and put the directory in your PATH.
 The most usefull script when working with perforce.
 
 It shows the current status of the relevant client, the current pending & shelved changelists as well as the default changelist.
+
+![image](https://cloud.githubusercontent.com/assets/4737096/3751346/84531f44-17fe-11e4-8d58-33bd9f1a3611.png)
+
 It can also show historical information of the current p4 client, and highlight reviewboard links and fixes.
+
+![image](https://cloud.githubusercontent.com/assets/4737096/3751349/881ddf24-17fe-11e4-8d29-a20fb5c10fe1.png)
 
 > Note that this script works a lot faster if [gnu-parallel][1] is installed.
 
