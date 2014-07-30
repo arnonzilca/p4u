@@ -35,6 +35,9 @@ for CHANGELIST in "$@"; do
     p4 -c ${client} revert $files_to_revert
     fi
 
-    p4 fix -d -c $CHANGELIST `p4 fixes -c $CHANGELIST | cut -f 1 -d ' ' | xargs`
+    fixes=$(p4 fixes -c ${CHANGELIST} | cut -f 1 -d ' ')
+    if [[ -n ${fixes} ]]; then
+        p4 fix -d -c ${CHANGELIST} ${fixes}
+    fi
     p4 -c ${client} change -d $CHANGELIST
 done
