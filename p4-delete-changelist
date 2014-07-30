@@ -23,21 +23,21 @@ fi
 
 for CHANGELIST in "$@"; do
     #make sure changelist exist.
-    p4 describe -s $CHANGELIST > /dev/null # set -e will exit automatically if fails
+    p4 describe -s ${CHANGELIST} > /dev/null # set -e will exit automatically if fails
 
-    client=$(p4 change -o $CHANGELIST | awk '/^Client:/{print $2}')
+    client=$(p4 change -o ${CHANGELIST} | awk '/^Client:/{print $2}')
 
-    p4-fix-hostname "$client" "$FORCE" || true
+    p4-fix-hostname "${client}" "${FORCE}" || true
 
-    p4 -c ${client} shelve -d -c $CHANGELIST 2> /dev/null || true
-    files_to_revert=$(p4 -c "${client}" opened 2> /dev/null | grep "change $CHANGELIST" | sed "s/#.*//g") # sed returns true even for empty answer
-    if [[ -n "$files_to_revert" ]]; then
-    p4 -c ${client} revert $files_to_revert
+    p4 -c ${client} shelve -d -c ${CHANGELIST} 2> /dev/null || true
+    files_to_revert=$(p4 -c "${client}" opened 2> /dev/null | grep "change ${CHANGELIST}" | sed "s/#.*//g") # sed returns true even for empty answer
+    if [[ -n "${files_to_revert}" ]]; then
+        p4 -c ${client} revert ${files_to_revert}
     fi
 
     fixes=$(p4 fixes -c ${CHANGELIST} | cut -f 1 -d ' ')
     if [[ -n ${fixes} ]]; then
         p4 fix -d -c ${CHANGELIST} ${fixes}
     fi
-    p4 -c ${client} change -d $CHANGELIST
+    p4 -c ${client} change -d ${CHANGELIST}
 done

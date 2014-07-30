@@ -7,8 +7,8 @@
 set -e
 
 opened=$(p4 opened) # split inorder to catch a login error.
-opened=$(echo "$opened" | sed "s/#.*//g")
+opened=$(echo "${opened}" | sed "s/#.*//g")
 
-if [[ -n "$opened" ]]; then
-    p4 revert $opened
+if [[ -n "${opened}" ]]; then
+    p4 revert ${opened}
 fi

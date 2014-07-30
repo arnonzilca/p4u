@@ -20,14 +20,14 @@ usage() {
 
 has-default-changelist() {
     #P4_DEFAULT_CHANGE from p4-help-functions
-    return $(p4 opened 2> /dev/null | grep "$P4_DEFAULT_CHANGE" > /dev/null)
+    return $(p4 opened 2> /dev/null | grep "${P4_DEFAULT_CHANGE}" > /dev/null)
 }
 
 is-changelist-shelved() {
     CHANGELIST="$1"
     describe_shelved=$(p4 describe -S "${CHANGELIST}")
     shelved_files_line=$(echo "${describe_shelved}" | grep -n "Shelved files" | sed "s/:.*//")
-    shelved_files_line=$(( ${shelved_files_line} + 2 ))
+    shelved_files_line=$(( shelved_files_line + 2 ))
 
     shelved_first_file=$(echo "${describe_shelved}" | sed "${shelved_files_line}q;d")
 
@@ -42,7 +42,7 @@ is-changelist-has-pending-files() {
     CHANGELIST="$1"
     describe_pending=$(p4 describe -s "${CHANGELIST}")
     pending_files_line=$(echo "${describe_pending}" | grep -n "Affected files" | sed "s/:.*//")
-    pending_files_line=$(( ${pending_files_line} + 2 ))
+    pending_files_line=$(( pending_files_line + 2 ))
 
     pending_first_file=$(echo "${describe_pending}" | sed "${pending_files_line}q;d")
 
@@ -74,7 +74,7 @@ while getopts "h?sr" opt; do
             ;;
     esac
 done
-shift $((OPTIND-1))
+shift $(( OPTIND - 1 ))
 
 CONTEXT_CHANGELIST="$1"
 
@@ -93,7 +93,7 @@ if [[ -n "${CONTEXT_CHANGELIST}" ]]; then
     fi
 fi
 
-if [[ -z "${CLIENT_NAME}" ]] || [[ "${CLIENT_NAME}" == "$HOSTNAME" ]]; then
+if [[ -z "${CLIENT_NAME}" ]] || [[ "${CLIENT_NAME}" == "${HOSTNAME}" ]]; then
     # perforce returns the hostname when not in a p4 client dir
     echo -e "${RED}Not inside a p4 client directory - can't determine default client.${NO_COLOR}"
     echo -e "${RED}Move to a p4 client directory.${NO_COLOR}"
@@ -110,7 +110,7 @@ while has-default-changelist; do
 done
 
 changelists=$(p4 changes -s pending -u $USER -c $CLIENT_NAME) # split inorder to catch a login error.
-changelists=$(echo "$changelists" | awk '{print $2}')
+changelists=$(echo "${changelists}" | awk '{print $2}')
 
 if [[ -z "${changelists}" ]]; then
     echo -e "${RED}No open changelists.${NO_COLOR}"
@@ -118,7 +118,7 @@ if [[ -z "${changelists}" ]]; then
     exit 7
 fi
 
-for changelist in $changelists; do
+for changelist in ${changelists}; do
     if [[ "${changelist}" -ne "${CONTEXT_CHANGELIST}" ]]; then
         if is-changelist-has-pending-files "${changelist}"; then
             if is-changelist-shelved "${changelist}"; then

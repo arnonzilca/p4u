@@ -19,7 +19,7 @@ usage() {
 }
 
 CLIENT_NAME=$(p4-client-name)   # sourced in p4-help-functions
-if [[ "$CLIENT_NAME" != "$HOSTNAME" ]]; then
+if [[ "${CLIENT_NAME}" != "${HOSTNAME}" ]]; then
     # perforce returns the hostname when not in a p4 client dir
     CLIENT_PATH=$(p4-client-path)   # sourced in p4-help-functions
 fi
@@ -34,19 +34,19 @@ while getopts "h?fc:n" opt; do
             FORCE="-f"
             ;;
         c)
-            CLIENT_NAME=$OPTARG
-            CLIENT_FULL_STRING=$(p4 clients -u $USER | grep "$CLIENT_NAME")
-            CLIENT_NAME=$(echo $CLIENT_FULL_STRING | awk '{print $2}')
-            if [[ -z "$CLIENT_NAME" ]]; then
+            CLIENT_NAME=${OPTARG}
+            CLIENT_FULL_STRING=$(p4 clients -u $USER | grep "${CLIENT_NAME}")
+            CLIENT_NAME=$(echo ${CLIENT_FULL_STRING} | awk '{print $2}')
+            if [[ -z "${CLIENT_NAME}" ]]; then
                 echo -en "${RED}"
-                echo "Couldn't find client: $CLIENT_NAME"
+                echo "Couldn't find client: ${CLIENT_NAME}"
                 echo "Or client doesn't belong to you ($USER)"
                 echo -en "${NO_COLOR}"
                 usage
                 exit 3
             fi
-            CLIENT_PATH=$(echo $CLIENT_FULL_STRING | awk '{print $5}')
-            if [[ ! -d "$CLIENT_PATH" ]]; then
+            CLIENT_PATH=$(echo ${CLIENT_FULL_STRING} | awk '{print $5}')
+            if [[ ! -d "${CLIENT_PATH}" ]]; then
                 # nothing to delete
                 CLIENT_PATH=
             fi
@@ -60,7 +60,7 @@ while getopts "h?fc:n" opt; do
             ;;
     esac
 done
-shift $((OPTIND-1))
+shift $(( OPTIND - 1 ))
 
 if [[ -n "$1" ]]; then # there shouldn't be anymore arguments
     echo -e "${RED}Illegal argument.${NO_COLOR}"
@@ -68,11 +68,11 @@ if [[ -n "$1" ]]; then # there shouldn't be anymore arguments
     exit 4
 fi
 
-if [[ -n "$NO_FILES" ]]; then
+if [[ -n "${NO_FILES}" ]]; then
     CLIENT_PATH=
 fi
 
-if [[ "$CLIENT_NAME" == "$HOSTNAME" ]]; then
+if [[ "${CLIENT_NAME}" == "${HOSTNAME}" ]]; then
     # perforce returns the hostname when not in a p4 client dir
     echo -en "${RED}"
     echo "Not inside a p4 client directory - can't determine current client."
@@ -82,17 +82,17 @@ if [[ "$CLIENT_NAME" == "$HOSTNAME" ]]; then
     exit 2
 fi
 
-changelists=$(p4 changes -s pending -u $USER -c "$CLIENT_NAME")   # split inorder to catch a login error.
-changelists=$(echo "$changelists" | awk '{print $2}')
+changelists=$(p4 changes -s pending -u $USER -c "${CLIENT_NAME}")   # split inorder to catch a login error.
+changelists=$(echo "${changelists}" | awk '{print $2}')
 
 echo -e "Attempting to delete client: ${CYAN}${CLIENT_NAME}${NO_COLOR}"
-if [[ -n "$CLIENT_PATH" ]]; then
+if [[ -n "${CLIENT_PATH}" ]]; then
     echo -e "At path: ${BLUE}${CLIENT_PATH}${NO_COLOR}"
 else
     echo "[With no files to delete]"
 fi
 
-if [[ -z "$FORCE" ]]; then
+if [[ -z "${FORCE}" ]]; then
     if ! promptyn "Are you sure you want to proceed? (Y/n)"; then
         echo -e "${CYAN}Saved by the bell.${NO_COLOR}"
         exit 0
@@ -100,16 +100,16 @@ if [[ -z "$FORCE" ]]; then
 fi
 echo
 
-default_changelist_files=$(p4 opened -C "$CLIENT_NAME" 2> /dev/null | grep "$P4_DEFAULT_CHANGE" | sed "s/#.*//g")
-if [[ -n "$changelists" ]] || [[ -n "$default_changelist_files" ]]; then
-    echo -n "There were pending/shelved changelists found on your client ($changelists" | tr '\n' ' '
-    if [[ -n "$default_changelist_files" ]]; then
+default_changelist_files=$(p4 opened -C "${CLIENT_NAME}" 2> /dev/null | grep "${P4_DEFAULT_CHANGE}" | sed "s/#.*//g")
+if [[ -n "${changelists}" ]] || [[ -n "${default_changelist_files}" ]]; then
+    echo -n "There were pending/shelved changelists found on your client (${changelists}" | tr '\n' ' '
+    if [[ -n "${default_changelist_files}" ]]; then
         echo " default)."
     else
         echo ")."
     fi
 
-    if  [[ -z "$FORCE" ]]; then
+    if  [[ -z "${FORCE}" ]]; then
         if ! promptyn "Do you wish to discard them? (Y/n)"; then
             echo -e "${CYAN}Saved by the bell.${NO_COLOR}"
             exit 0
@@ -118,31 +118,31 @@ if [[ -n "$changelists" ]] || [[ -n "$default_changelist_files" ]]; then
         echo "Discarding them."
     fi
 
-    if [[ -n "$changelists" ]]; then
-        p4-delete-changelist $FORCE $changelists
+    if [[ -n "${changelists}" ]]; then
+        p4-delete-changelist ${FORCE} ${changelists}
     fi
 
-    if [[ -n "$default_changelist_files" ]]; then
-        p4-fix-hostname "$CLIENT_NAME" "$FORCE"   # sourced in p4-help-functions
-        p4 -c ${CLIENT_NAME} revert $default_changelist_files
+    if [[ -n "${default_changelist_files}" ]]; then
+        p4-fix-hostname "${CLIENT_NAME}" "${FORCE}"   # sourced in p4-help-functions
+        p4 -c ${CLIENT_NAME} revert ${default_changelist_files}
     fi
     echo
 fi
 
 # unlocking p4 client using p4 client stdin & stdout option.
 # sed will change locked to unlocked only in the Options line.
-p4 client -o "$CLIENT_NAME" | sed '/^Options:/ s= locked = unlocked =' | p4 client -i > /dev/null
+p4 client -o "${CLIENT_NAME}" | sed '/^Options:/ s= locked = unlocked =' | p4 client -i > /dev/null
 
 # delete the client now when it's unlocked
-p4 client -d "$CLIENT_NAME"
+p4 client -d "${CLIENT_NAME}"
 
 # delete files if needed
-if [[ -n "$CLIENT_PATH" ]]; then
+if [[ -n "${CLIENT_PATH}" ]]; then
     echo -n "Deleting files... "
-    rm -rf "$CLIENT_PATH"
+    rm -rf "${CLIENT_PATH}"
     echo "Done!"
     echo
-    echo "  cd $(echo $CLIENT_PATH | sed 's/\(.*\)\/.*/\1/')" # omit last directory
+    echo "  cd $(echo ${CLIENT_PATH} | sed 's/\(.*\)\/.*/\1/')" # omit last directory
     echo
-    echo -e "${CYAN}There is no spoon.${NO_COLOR} ($CLIENT_PATH is now gone)."
+    echo -e "${CYAN}There is no spoon.${NO_COLOR} (${CLIENT_PATH} is now gone)."
 fi
