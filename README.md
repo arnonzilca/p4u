@@ -28,9 +28,21 @@ It can also show historical information of the current p4 client, and highlight 
 
 Allows switching the current changelist you're working on by shelving everything arround and unshelving the requested changelist.
 
-It can also help when you want to start fresh and store all your current work. Run it without arguments and everything will be shelved.
+#### Say this is your current p4 state:
 
-> You can also sync & resolve automatically after the switch is done.
+![image](https://cloud.githubusercontent.com/assets/4737096/3790299/32f6d0bc-1af8-11e4-9f48-9a9a41a20666.png)
+
+#### And Now, you want to work on changelist #1237177
+
+![image](https://cloud.githubusercontent.com/assets/4737096/3790300/32f72332-1af8-11e4-9fa7-027c927c20ce.png)
+
+#### After running [p4-switch-context](p4-switch-context) you're there
+
+![image](https://cloud.githubusercontent.com/assets/4737096/3790301/32f7e98e-1af8-11e4-8852-19d89f7d7afb.png)
+
+Run [p4-switch-context](p4-switch-context) without arguments when you want to start fresh and store all your current work. Everything will be shelved, and all pending work will be reverted.
+
+> You can also sync & resolve automatically after the switch is done (run with -h to see all the options).
 
 
 ## [p4-annotate](p4-annotate)
