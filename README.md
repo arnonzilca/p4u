@@ -6,7 +6,6 @@ A lighter approach to command line perforce (p4)
 # installation
 clone this repository and put the directory in your PATH.
 > Note that the scripts use one another, so you'll need all of them to be reachable from your PATH.
-> Hence, adding the repository's directory to your PATH.
 
 
 ## [p4-show](p4-show)
