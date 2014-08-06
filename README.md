@@ -40,7 +40,7 @@ Allows switching the current changelist you're working on by shelving everything
 
 ![image](https://cloud.githubusercontent.com/assets/4737096/3790301/32f7e98e-1af8-11e4-8852-19d89f7d7afb.png)
 
-Run [p4-switch-context](p4-switch-context) without arguments when you want to start fresh and store all your current work. Everything will be shelved, and all pending work will be reverted.
+Run [p4-switch-context](p4-switch-context) without passing a changelist number when you want to start fresh and store all your current work. Everything will be shelved, and all pending work will be reverted.
 
 > You can also sync & resolve automatically after the switch is done (run with -h to see all the options).
 
