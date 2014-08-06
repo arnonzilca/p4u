@@ -78,7 +78,7 @@ Just as it sounds - reshelves a shelved changelist by the current pending files 
 
 ## [p4-unshelve](p4-unshelve)
 
-Unshelves a changelist to iself by default (instead of p4 default unshelve to the 'Default changelist').
+Unshelves a changelist to itself by default (instead of p4 default unshelve to the 'Default changelist').
 
 
 ## [p4-revert-all-opened](p4-revert-all-opened)
