@@ -15,7 +15,7 @@ The most usefull script when working with perforce.
 
 It shows the current status of the relevant client, the current pending & shelved changelists as well as the default changelist.
 
-![image](https://cloud.githubusercontent.com/assets/4737096/3751346/84531f44-17fe-11e4-8d58-33bd9f1a3611.png)
+![image](https://cloud.githubusercontent.com/assets/4737096/3824370/576ba9d6-1d46-11e4-9728-81a2bb5ddfe7.png)
 
 It can also show historical information of the current p4 client, and highlight reviewboard links and fixes.
 
