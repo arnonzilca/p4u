@@ -55,6 +55,7 @@ is-changelist-has-pending-files() {
 
 #setting up default flags
 CLIENT_NAME=$(p4-client-name)   # sourced in p4-help-functions
+p4 login -s > /dev/null         # validate user is logged in
 
 while getopts "h?sr" opt; do
     case "${opt}" in
@@ -78,38 +79,38 @@ shift $(( OPTIND - 1 ))
 
 CONTEXT_CHANGELIST="$1"
 
-if [[ -n "${CONTEXT_CHANGELIST}" ]]; then
-    if ! is-changelist-shelved "${CONTEXT_CHANGELIST}"; then
-        echo -e "${RED}Destination context changelist (${CONTEXT_CHANGELIST}) is not shelved.${NO_COLOR}"
-        usage
-        exit 3
-    fi
-
-    if is-changelist-has-pending-files "${CONTEXT_CHANGELIST}"; then
-        echo "Destination context changelist (${CONTEXT_CHANGELIST}) has pending files."
-        if ! promptyn "Do you wish to revert them before unshelving? [Y/n]"; then
-            exit 4
-        fi
-    fi
-fi
-
 if [[ -z "${CLIENT_NAME}" ]] || [[ "${CLIENT_NAME}" == "${HOSTNAME}" ]]; then
     # perforce returns the hostname when not in a p4 client dir
     echo -e "${RED}Not inside a p4 client directory - can't determine default client.${NO_COLOR}"
     echo -e "${RED}Move to a p4 client directory.${NO_COLOR}"
     usage
-    exit 5
+    exit 3
+fi
+
+if [[ -n "${CONTEXT_CHANGELIST}" ]]; then
+    if ! is-changelist-shelved "${CONTEXT_CHANGELIST}"; then
+        echo -e "${RED}Destination context changelist (${CONTEXT_CHANGELIST}) is not shelved.${NO_COLOR}"
+        usage
+        exit 4
+    fi
+
+    if is-changelist-has-pending-files "${CONTEXT_CHANGELIST}"; then
+        echo "Destination context changelist (${CONTEXT_CHANGELIST}) has pending files."
+        if ! promptyn "Do you wish to revert them before unshelving? [Y/n]"; then
+            exit 5
+        fi
+    fi
 fi
 
 while has-default-changelist; do
-    echo -e "${RED}Can't switch context while there's a pending default changelist${NO_COLOR}"
+    echo -e "${RED}Can't switch context while there's a pending default changelist.${NO_COLOR}"
     if ! promptyn "Do you wish to run p4 change? [Y/n]"; then    # sourced in p4-help-functions
         exit 6
     fi
     p4 change
 done
 
-changelists=$(p4 changes -s pending -u $USER -c $CLIENT_NAME) # split inorder to catch a login error.
+changelists=$(p4 changes -s pending -u $USER -c $CLIENT_NAME)
 changelists=$(echo "${changelists}" | awk '{print $2}')
 
 if [[ -z "${changelists}" ]]; then
