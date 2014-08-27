@@ -16,6 +16,7 @@ usage() {
     echo    "  -h   shows this help"
     echo    "  -s   sync after unshelve"
     echo    "  -r   resolve conflicts"
+    echo    "  -m   auto accept merges upon resolve"
 }
 
 has-default-changelist() {
@@ -57,7 +58,7 @@ is-changelist-has-pending-files() {
 CLIENT_NAME=$(p4-client-name)   # sourced in p4-help-functions
 p4 login -s > /dev/null         # validate user is logged in
 
-while getopts "h?sr" opt; do
+while getopts "h?srm" opt; do
     case "${opt}" in
         h)
             usage
@@ -68,6 +69,9 @@ while getopts "h?sr" opt; do
             ;;
         r)
             DO_RESOLVE=1
+            ;;
+        m)
+            ACCEPT_MERGE_FLAGS="-am"
             ;;
         *)
             usage
@@ -153,5 +157,5 @@ if [[ -n ${DO_SYNC} ]]; then
 fi
 
 if [[ -n ${DO_RESOLVE} ]]; then
-    p4 resolve
+    p4 resolve ${ACCEPT_MERGE_FLAGS}
 fi
