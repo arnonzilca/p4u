@@ -7,7 +7,7 @@
 set -e
 
 if [[ $# -ne 2 ]]; then
-    echo "usage: $(basename $0) file line"
+    echo "usage: $(basename $0) file line" >&2
     exit 1
 fi
 
@@ -21,7 +21,7 @@ CHANGELISTS_INNER_TEXT="CL,cl,Changelist,changelist,copy from,edit from,merge fr
 changelist=$(p4 annotate -cq ${FILE} | sed -e "${LINE}q;d" | sed -e 's/:.*//g')
 
 if [[ -z $changelist ]]; then
-    echo -e "${RED}Annotation not found... :(${NO_COLOR}"
+    echo -e "${RED}Annotation not found... :(${NO_COLOR}" >&2
     exit 2
 fi
 
