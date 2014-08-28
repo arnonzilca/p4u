@@ -33,26 +33,21 @@ pending=$(p4 describe -s $1)    # split inorder to catch a login error.
 pending=$(echo "${pending}" | sed '/^[\t]*$/d')
 shelved=$(p4 describe -Ss $1 2> /dev/null | sed '/^[\t]*$/d')
 
-echo -en "${PURPLE}"
-if [[ -n "${BRIEF_PRINT}" ]]; then
-    echo "${pending}" | head -n 2
-else
+description_lines=2
+if [[ -z "${BRIEF_PRINT}" ]]; then
     review_line=$(echo "${pending}" | grep -n "${REVIEW_TEXT}" | cut -f1 -d:)
     bug_line=$(echo "${pending}" | grep -n "${BUG_TEXT}" | cut -f1 -d:)
     affected_line=$(echo "${pending}" | grep -n "${AFFECTED_TEXT}" | cut -f1 -d:)
 
-    minimum=$(echo -e "${review_line}\n${bug_line}\n${affected_line}" | sed '/^[\t]*$/d' | sort -g | head -n 1)
-    minimum=$(( minimum - 1 ))
+    description_lines=$(echo -e "${review_line}\n${bug_line}\n${affected_line}" | sed '/^[\t]*$/d' | sort -g | head -n 1)
+    description_lines=$(( description_lines - 1 ))
 
-    echo "${pending}" | head -n "${minimum}"
 fi
-echo -en "${NO_COLOR}"
+echo -e "${PURPLE}${pending}${NO_COLOR}" | head -n "${description_lines}"
 
 review=$(echo "${pending}" | grep "${REVIEW_TEXT}" || true)
 if [[ -n "${review}" ]]; then
-    echo -en "${YELLOW}"
-    echo "${review}"
-    echo -en "${NO_COLOR}"
+    echo -e "${YELLOW}${review}${NO_COLOR}"
 fi
 
 bugs=$(echo "${pending}" | grep -n "${BUG_TEXT}" || true)
@@ -62,8 +57,7 @@ if [[ -n "${bugs}" ]]; then
     bugs_end_line="$(echo "${pending}" | grep -n "${AFFECTED_TEXT}" | cut -f1 -d:)"
     bugs_end_line=$(( bugs_end_line - 1 ))
     bugs_text=$(echo "${pending}" | sed -n "${bugs_start_line},${bugs_end_line}p" )
-    echo -en "${GREEN}"
-    echo -n "        Bugs Fixed: "
+    echo -en "${GREEN}        Bugs Fixed: "
 
     while read -r line1 && read -r line2; do
         echo -n "${bugs_print_spaces}${line1}"  # print bug#, user & state
