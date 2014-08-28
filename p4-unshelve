@@ -7,8 +7,8 @@
 set -e
 
 if [[ $# -ne 1 || "$1" == "-h" ]]; then
-    echo "usage: $(basename $0) shelved-changelist"
-    echo "Description: unshelves a p4 changelist to its own changelist"
+    echo "usage: $(basename $0) shelved-changelist" >&2
+    echo "Description: unshelves a p4 changelist to its own changelist" >&2
     exit 1
 fi
 

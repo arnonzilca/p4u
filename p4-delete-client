@@ -9,13 +9,13 @@ set -e
 source "p4-help-functions"
 
 usage() {
-    echo -en "${NO_COLOR}"
-    echo    "$(basename $0) -- deletes the current client"
-    echo    "usage: $(basename $0) [options]"
-    echo    "  -h         shows this help"
-    echo    "  -f         force delete (no questions asked)"
-    echo    "  -c client  client name (does not require a full name)"
-    echo    "  -n         don't delete files"
+    echo -en "${NO_COLOR}" >&2
+    echo    "$(basename $0) -- deletes the current client" >&2
+    echo    "usage: $(basename $0) [options]" >&2
+    echo    "  -h         shows this help" >&2
+    echo    "  -f         force delete (no questions asked)" >&2
+    echo    "  -c client  client name (does not require a full name)" >&2
+    echo    "  -n         don't delete files" >&2
 }
 
 CLIENT_NAME=$(p4-client-name)   # sourced in p4-help-functions
@@ -38,10 +38,10 @@ while getopts "h?fc:n" opt; do
             CLIENT_FULL_STRING=$(p4 clients -u $USER | grep "${CLIENT_NAME}")
             CLIENT_NAME=$(echo ${CLIENT_FULL_STRING} | awk '{print $2}')
             if [[ -z "${CLIENT_NAME}" ]]; then
-                echo -en "${RED}"
-                echo "Couldn't find client: ${CLIENT_NAME}"
-                echo "Or client doesn't belong to you ($USER)"
-                echo -en "${NO_COLOR}"
+                echo -en "${RED}" >&2
+                echo "Couldn't find client: ${CLIENT_NAME}" >&2
+                echo "Or client doesn't belong to you ($USER)" >&2
+                echo -en "${NO_COLOR}" >&2
                 usage
                 exit 3
             fi
@@ -63,7 +63,7 @@ done
 shift $(( OPTIND - 1 ))
 
 if [[ -n "$1" ]]; then # there shouldn't be anymore arguments
-    echo -e "${RED}Illegal argument.${NO_COLOR}"
+    echo -e "${RED}Illegal argument.${NO_COLOR}" >&2
     usage
     exit 4
 fi
@@ -74,10 +74,10 @@ fi
 
 if [[ "${CLIENT_NAME}" == "${HOSTNAME}" ]]; then
     # perforce returns the hostname when not in a p4 client dir
-    echo -en "${RED}"
-    echo "Not inside a p4 client directory - can't determine current client."
-    echo "Move to a p4 client directory or use the -c option."
-    echo -en "${NO_COLOR}"
+    echo -en "${RED}" >&2
+    echo "Not inside a p4 client directory - can't determine current client." >&2
+    echo "Move to a p4 client directory or use the -c option." >&2
+    echo -en "${NO_COLOR}" >&2
     usage
     exit 2
 fi
@@ -94,28 +94,28 @@ fi
 
 if [[ -z "${FORCE}" ]]; then
     if ! promptyn "Are you sure you want to proceed? (Y/n)"; then
-        echo -e "${CYAN}Saved by the bell.${NO_COLOR}"
+        echo -e "${CYAN}Saved by the bell.${NO_COLOR}" >&2
         exit 0
     fi
 fi
-echo
+echo >&2
 
 default_changelist_files=$(p4 opened -C "${CLIENT_NAME}" 2> /dev/null | grep "${P4_DEFAULT_CHANGE}" | sed "s/#.*//g")
 if [[ -n "${changelists}" ]] || [[ -n "${default_changelist_files}" ]]; then
-    echo -n "There were pending/shelved changelists found on your client (${changelists}" | tr '\n' ' '
+    echo -n "There were pending/shelved changelists found on your client (${changelists}" | tr '\n' ' ' >&2
     if [[ -n "${default_changelist_files}" ]]; then
-        echo " default)."
+        echo " default)." >&2
     else
-        echo ")."
+        echo ")." >&2
     fi
 
     if  [[ -z "${FORCE}" ]]; then
         if ! promptyn "Do you wish to discard them? (Y/n)"; then
-            echo -e "${CYAN}Saved by the bell.${NO_COLOR}"
+            echo -e "${CYAN}Saved by the bell.${NO_COLOR}" >&2
             exit 0
         fi
     else
-        echo "Discarding them."
+        echo "Discarding them." >&2
     fi
 
     if [[ -n "${changelists}" ]]; then
@@ -126,7 +126,7 @@ if [[ -n "${changelists}" ]] || [[ -n "${default_changelist_files}" ]]; then
         p4-fix-hostname "${CLIENT_NAME}" "${FORCE}"   # sourced in p4-help-functions
         p4 -c ${CLIENT_NAME} revert ${default_changelist_files}
     fi
-    echo
+    echo >&2
 fi
 
 # unlocking p4 client using p4 client stdin & stdout option.
@@ -143,6 +143,6 @@ if [[ -n "${CLIENT_PATH}" ]]; then
     echo "Done!"
     echo
     echo "  cd $(echo ${CLIENT_PATH} | sed 's/\(.*\)\/.*/\1/')" # omit last directory
-    echo
-    echo -e "${CYAN}There is no spoon.${NO_COLOR} (${CLIENT_PATH} is now gone)."
+    echo >&2
+    echo -e "${CYAN}There is no spoon.${NO_COLOR} (${CLIENT_PATH} is now gone)." >&2
 fi

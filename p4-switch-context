@@ -10,13 +10,13 @@ set -e
 source p4-help-functions
 
 usage() {
-    echo -en "${NO_COLOR}"
-    echo    "$(basename $0) -- shelves all current changelists and unshelves a certain changelists if passed"
-    echo    "usage: $(basename $0) [options] [changelist]"
-    echo    "  -h   shows this help"
-    echo    "  -s   sync after unshelve"
-    echo    "  -r   resolve conflicts"
-    echo    "  -m   auto accept merges upon resolve"
+    echo -en "${NO_COLOR}" >&2
+    echo    "$(basename $0) -- shelves all current changelists and unshelves a certain changelists if passed" >&2
+    echo    "usage: $(basename $0) [options] [changelist]" >&2
+    echo    "  -h   shows this help" >&2
+    echo    "  -s   sync after unshelve" >&2
+    echo    "  -r   resolve conflicts" >&2
+    echo    "  -m   auto accept merges upon resolve" >&2
 }
 
 has-default-changelist() {
@@ -85,21 +85,21 @@ CONTEXT_CHANGELIST="$1"
 
 if [[ -z "${CLIENT_NAME}" ]] || [[ "${CLIENT_NAME}" == "${HOSTNAME}" ]]; then
     # perforce returns the hostname when not in a p4 client dir
-    echo -e "${RED}Not inside a p4 client directory - can't determine default client.${NO_COLOR}"
-    echo -e "${RED}Move to a p4 client directory.${NO_COLOR}"
+    echo -e "${RED}Not inside a p4 client directory - can't determine default client.${NO_COLOR}" >&2
+    echo -e "${RED}Move to a p4 client directory.${NO_COLOR}" >&2
     usage
     exit 3
 fi
 
 if [[ -n "${CONTEXT_CHANGELIST}" ]]; then
     if ! is-changelist-shelved "${CONTEXT_CHANGELIST}"; then
-        echo -e "${RED}Destination context changelist (${CONTEXT_CHANGELIST}) is not shelved.${NO_COLOR}"
+        echo -e "${RED}Destination context changelist (${CONTEXT_CHANGELIST}) is not shelved.${NO_COLOR}" >&2
         usage
         exit 4
     fi
 
     if is-changelist-has-pending-files "${CONTEXT_CHANGELIST}"; then
-        echo "Destination context changelist (${CONTEXT_CHANGELIST}) has pending files."
+        echo "Destination context changelist (${CONTEXT_CHANGELIST}) has pending files." >&2
         if ! promptyn "Do you wish to revert them before unshelving? [Y/n]"; then
             exit 5
         fi
@@ -107,7 +107,7 @@ if [[ -n "${CONTEXT_CHANGELIST}" ]]; then
 fi
 
 while has-default-changelist; do
-    echo -e "${RED}Can't switch context while there's a pending default changelist.${NO_COLOR}"
+    echo -e "${RED}Can't switch context while there's a pending default changelist.${NO_COLOR}" >&2
     if ! promptyn "Do you wish to run p4 change? [Y/n]"; then    # sourced in p4-help-functions
         exit 6
     fi
@@ -118,7 +118,7 @@ changelists=$(p4 changes -s pending -u $USER -c $CLIENT_NAME)
 changelists=$(echo "${changelists}" | awk '{print $2}')
 
 if [[ -z "${changelists}" ]]; then
-    echo -e "${RED}No open changelists.${NO_COLOR}"
+    echo -e "${RED}No open changelists.${NO_COLOR}" >&2
     usage
     exit 7
 fi
@@ -127,7 +127,7 @@ for changelist in ${changelists}; do
     if [[ "${changelist}" -ne "${CONTEXT_CHANGELIST}" ]]; then
         if is-changelist-has-pending-files "${changelist}"; then
             if is-changelist-shelved "${changelist}"; then
-                echo "Changelist ${changelist} is already shelved."
+                echo "Changelist ${changelist} is already shelved." >&2
                 if ! promptyn "Do you wish to delete the current shelve and reshelve it? [Y/n]"; then    # sourced in p4-help-functions
                     exit 8
                 fi

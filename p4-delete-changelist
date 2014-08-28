@@ -11,8 +11,8 @@ set -e
 source "p4-help-functions" || true
 
 if [[ $# -lt 1 ]]; then
-echo "usage: $(basename $0) changelist[s]"
-echo "Description: removes shelve, reverts files and finally deletes changelist."
+    echo "usage: $(basename $0) changelist[s]" >&2
+    echo "Description: removes shelve, reverts files and finally deletes changelist." >&2
     exit 1
 fi
 

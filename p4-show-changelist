@@ -9,8 +9,8 @@ set -e
 source p4-help-functions
 
 usage() {
-    echo "usage: $(basename $0) changelist [brief-print]"
-    echo "   brief-option -     any string"
+    echo "usage: $(basename $0) changelist [brief-print]" >&2
+    echo "   brief-option -     any string" >&2
 }
 
 if [[ "$#" -lt 1 ]]; then

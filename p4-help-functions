@@ -33,11 +33,11 @@ uncolor() {
 
 promptyn() {
     while true; do
-        read -p "$1 " yn
+        read -p "$1 " yn >&2
         case ${yn} in
             [Yy]*|"" ) return 0;;
             [Nn]* ) return 1;;
-            * ) echo "Please answer yes or no.";;
+            * ) echo "Please answer yes or no." >&2 ;;
         esac
     done
 }
@@ -58,14 +58,14 @@ p4-fix-hostname() {
 
     client_hostname="$(p4 client -o ${CLIENT} | grep "^Host" | awk '{print $2}')"
     if [[ "${client_hostname}" != "${HOSTNAME}" ]]; then
-        echo "Client hostname (${client_hostname}) differs from current hostname (${HOSTNAME})"
+        echo "Client hostname (${client_hostname}) differs from current hostname (${HOSTNAME})" >&2
         if [[ -z "${FORCE}" ]]; then
             if ! promptyn "Are you sure you want to continue? (Y/n)"; then
-                echo -e "${CYAN}Saved by the bell.${NO_COLOR}"
+                echo -e "${CYAN}Saved by the bell.${NO_COLOR}" >&2
                 exit 0
             fi
         else
-            echo "Deleting anyway..."
+            echo "Deleting anyway..." >&2
         fi
         p4 client -o ${CLIENT} | sed "/^Host:/ s=${client_hostname}=${HOSTNAME}=" | p4 client -i > /dev/null
     fi
