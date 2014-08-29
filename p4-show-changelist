@@ -44,6 +44,7 @@ if [[ -z "${BRIEF_PRINT}" ]]; then
 
 fi
 echo -e "${PURPLE}${pending}${NO_COLOR}" | head -n "${description_lines}"
+is_pending=$(echo -e "${PURPLE}${pending}${NO_COLOR}" | head -n 1 | grep "\*pending\*" || true)
 
 review=$(echo "${pending}" | grep "${REVIEW_TEXT}" || true)
 if [[ -n "${review}" ]]; then
@@ -74,7 +75,9 @@ if echo "${pending}" | grep "${AFFECTED_TEXT}" > /dev/null; then
     pending="$(echo "${pending}" | tail -n+${pending_lines})"
 
     if [[ -n "${pending}" ]]; then
-        echo -e "${BLUE}    Pending Files${NO_COLOR}"
+        if [[ -n "${is_pending}" || -z "${BRIEF_PRINT}" ]]; then
+            echo -e "${BLUE}    Pending Files${NO_COLOR}"
+        fi
         if [[ -z "${BRIEF_PRINT}" ]]; then
             echo "${pending}"
         fi
@@ -86,7 +89,9 @@ if echo "${shelved}" | grep "${SHELVED_TEXT}" > /dev/null; then
     shelved="$(echo "${shelved}" | tail -n+${shelved_lines})"
 
     if [[ -n "${shelved}" ]]; then
-        echo -e "${RED}    Shelved Files${NO_COLOR}"
+        if [[ -n "${is_pending}" || -z "${BRIEF_PRINT}" ]]; then
+            echo -e "${RED}    Shelved Files${NO_COLOR}"
+        fi
         if [[ -z "${BRIEF_PRINT}" ]]; then
             echo "${shelved}"
         fi
