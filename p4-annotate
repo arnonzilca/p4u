@@ -6,12 +6,13 @@
 
 set -e
 
+source "p4-help-functions"
+
 if [[ $# -ne 2 ]]; then
+    echo "${RED}Missing arguments.${NO_COLOR}" >&2
     echo "usage: $(basename $0) file line" >&2
     exit 1
 fi
-
-source p4-help-functions
 
 FILE="$1"
 LINE="$2"

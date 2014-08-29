@@ -8,10 +8,20 @@
 
 set -e
 
-if [[ $# -ne 1 || "$1" == "-h" ]]; then
+usage() {
+    echo "$(basename $0) -- deletes the current shevlve of a p4 changelist and" >&2
+    echo "    shelves the current pending changelist." >&2
     echo "usage: $(basename $0) shelved-changelist" >&2
-    echo "Description: deletes the current shevlve of a p4 changelist and" >&2
-    echo "shelves the current pending changelist." >&2
+}
+
+if [[ "$1" == "-h" ]]; then
+    usage
+    exit 0
+fi
+
+if [[ $# -ne 1 ]]; then
+    echo "${RED}Bad arguments.${NO_COLOR}" >&2
+    usage
     exit 1
 fi
 

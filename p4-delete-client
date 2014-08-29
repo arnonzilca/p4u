@@ -24,6 +24,8 @@ if [[ "${CLIENT_NAME}" != "${HOSTNAME}" ]]; then
     CLIENT_PATH=$(p4-client-path)   # sourced in p4-help-functions
 fi
 
+echo -en "${RED}"
+
 while getopts "h?fc:n" opt; do
     case "${opt}" in
         h)
@@ -38,10 +40,8 @@ while getopts "h?fc:n" opt; do
             CLIENT_FULL_STRING=$(p4 clients -u $USER | grep "${CLIENT_NAME}")
             CLIENT_NAME=$(echo ${CLIENT_FULL_STRING} | awk '{print $2}')
             if [[ -z "${CLIENT_NAME}" ]]; then
-                echo -en "${RED}" >&2
-                echo "Couldn't find client: ${CLIENT_NAME}" >&2
-                echo "Or client doesn't belong to you ($USER)" >&2
-                echo -en "${NO_COLOR}" >&2
+                echo -e "${RED}Couldn't find client: ${CLIENT_NAME}" >&2
+                echo -e "Or client doesn't belong to you ($USER)${NO_COLOR}" >&2
                 usage
                 exit 3
             fi
@@ -61,6 +61,8 @@ while getopts "h?fc:n" opt; do
     esac
 done
 shift $(( OPTIND - 1 ))
+
+echo -en "${NO_COLOR}"
 
 if [[ -n "$1" ]]; then # there shouldn't be anymore arguments
     echo -e "${RED}Illegal argument.${NO_COLOR}" >&2

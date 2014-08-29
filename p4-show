@@ -6,7 +6,7 @@
 
 set -e
 
-source p4-help-functions
+source "p4-help-functions"
 
 clear_line() {
     echo -en "\r                                                                                           \r${NO_COLOR}" >&2

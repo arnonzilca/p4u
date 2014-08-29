@@ -7,7 +7,7 @@
 
 set -e
 
-source p4-help-functions
+source "p4-help-functions"
 
 usage() {
     echo -en "${NO_COLOR}" >&2
@@ -58,6 +58,8 @@ is-changelist-has-pending-files() {
 CLIENT_NAME=$(p4-client-name)   # sourced in p4-help-functions
 p4 login -s > /dev/null         # validate user is logged in
 
+echo -en "${RED}"
+
 while getopts "h?srm" opt; do
     case "${opt}" in
         h)
@@ -80,6 +82,8 @@ while getopts "h?srm" opt; do
     esac
 done
 shift $(( OPTIND - 1 ))
+
+echo -en "${NO_COLOR}"
 
 CONTEXT_CHANGELIST="$1"
 

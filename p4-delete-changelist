@@ -8,17 +8,28 @@
 
 set -e
 
-source "p4-help-functions" || true
+source "p4-help-functions"
 
-if [[ $# -lt 1 ]]; then
-    echo "usage: $(basename $0) changelist[s]" >&2
-    echo "Description: removes shelve, reverts files and finally deletes changelist." >&2
-    exit 1
+usage() {
+    echo "$(basename $0) -- removes shelve, reverts files and finally deletes changelist." >&2
+    echo "usage: $(basename $0) [options] changelist[s]" >&2
+    echo "  -f   force delete (don't as questions)" >&2
+}
+
+if [[ "$1" == "-h" ]]; then
+    usage
+    exit 0
 fi
 
 if [[ "$1" == "-f" ]]; then
     FORCE=1
     shift
+fi
+
+if [[ $# -lt 1 ]]; then
+    echo "${RED}Missing changelist[s] arguments.${NO_COLOR}" >&2
+    usage
+    exit 1
 fi
 
 for CHANGELIST in "$@"; do
