@@ -22,7 +22,7 @@ It can also show historical information of the current p4 client, and highlight 
 
 > Note that this script works a lot faster if [gnu-parallel][1] is installed.
 > Moreover, Since this script is usually used daily - several times a day (at least by me),
-> it is recommended to alias it to a shorter phrase (`p4p` `pp` or even just `p`).
+> it is recommended to alias it to a shorter phrase (`p4p`, `pp` or even just `p`).
 > Aliasing is also recommended for personalizing the script's configuration.
 > (Helps permanently removing the colors, printing briefly always or printing verbosely always).
 
