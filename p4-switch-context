@@ -54,11 +54,7 @@ is-changelist-has-pending-files() {
     fi
 }
 
-#setting up default flags
-CLIENT_NAME=$(p4-client-name)   # sourced in p4-help-functions
-p4 login -s > /dev/null         # validate user is logged in
-
-echo -en "${RED}"
+echo -en "${RED}" >&2
 
 while getopts "h?srm" opt; do
     case "${opt}" in
@@ -83,7 +79,12 @@ while getopts "h?srm" opt; do
 done
 shift $(( OPTIND - 1 ))
 
-echo -en "${NO_COLOR}"
+echo -en "${NO_COLOR}" >&2
+
+#setting up default flags
+CLIENT_NAME=$(p4-client-name)   # sourced in p4-help-functions
+p4 login -s > /dev/null         # validate user is logged in
+
 
 CONTEXT_CHANGELIST="$1"
 
@@ -155,11 +156,11 @@ if [[ -n "${CONTEXT_CHANGELIST}" ]]; then
 fi
 
 if [[ -n ${DO_SYNC} ]]; then
-    echo
-    echo "Syncing . . ."
+    echo "Syncing . . . "
     p4 sync
 fi
 
 if [[ -n ${DO_RESOLVE} ]]; then
+    echo "Resolving . . . "
     p4 resolve ${ACCEPT_MERGE_FLAGS}
 fi

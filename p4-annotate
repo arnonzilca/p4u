@@ -8,9 +8,19 @@ set -e
 
 source "p4-help-functions"
 
+usage() {
+    echo "$(basename $0) -- prints the relevant changelist of a specific line in a file" >&2
+    echo "usage: $(basename $0) file line" >&2
+}
+
+if [[ $1 == "-h" ]]; then
+    usage
+    exit 0
+fi
+
 if [[ $# -ne 2 ]]; then
     echo "${RED}Missing arguments.${NO_COLOR}" >&2
-    echo "usage: $(basename $0) file line" >&2
+    usage
     exit 1
 fi
 
