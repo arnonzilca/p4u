@@ -21,6 +21,10 @@ It can also show historical information of the current p4 client, and highlight 
 ![image](https://cloud.githubusercontent.com/assets/4737096/3751349/881ddf24-17fe-11e4-8d29-a20fb5c10fe1.png)
 
 > Note that this script works a lot faster if [gnu-parallel][1] is installed.
+> Moreover, Since this script is usually used daily - several times a day (at least by me),
+> it is recommended to alias it to a shorter phrase (`p4p` `pp` or even just `p`).
+> Aliasing is also recommended for personalizing the script's configuration.
+> (Helps permanently removing the colors, printing briefly always or printing verbosely always).
 
 
 ## [p4-switch-context](p4-switch-context)
