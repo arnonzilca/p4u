@@ -38,41 +38,16 @@ usage() {
     echo    "  -v           force verbose printing - including pending & shelved filenames" >&2
     echo    "  -b           force brief printing - no filenames (inferior to -v)" >&2
     echo    "  -n           no colors" >&2
-    echo    "  -a           show all changelists, not just pending (sets brief printing) " >&2
-    echo    "  -d           show only the default changelist (sets verbose printing)" >&2
+    echo    "  -a           show all changelists, not just pending" >&2
+    echo    "  -d           show only the default changelist" >&2
     echo    "  -l           skip changelists limit check (${NUMBER_OF_CHANGELISTS_LIMIT})" >&2
     echo    "  -m max       show the 'max' most recent changelists (not including the default changelist)" >&2
-    echo -n "  -c client    filter by client (current default client is: " >&2
-    if [[ "${CLIENT_NAME}" == "${HOSTNAME}" ]]; then
-        # perforce returns the hostname when not in a p4 client dir
-        echo -e "${RED}Not inside a p4 client directory?${NO_COLOR})" >&2
-    else
-        echo "${CLIENT_NAME})" >&2
-    fi
+    echo    "  -c client    filter by client" >&2
     echo    "  -u user      filter by user (the default in your case is ${USER})" >&2
-    echo    "               - this option cancels filter by default client." >&2
 }
 
 show-default-changelist() {
-    if [[ $1 == "-b" ]]; then
-        BRIEF_PRINT=1
-        shift
-    fi
-
-    local default_changelist=$(p4 opened $@ 2> /dev/null)
-    local default_changelist=$(echo "${default_changelist}" | grep "${P4_DEFAULT_CHANGE}" || true) #P4_DEFAULT_CHANGE from p4-help-functions
-
-    if [[ -n "${default_changelist}" ]]; then
-        echo -e "${PURPLE}Default changelist${NO_COLOR}"
-
-        if [[ -z "${BRIEF_PRINT}" ]]; then
-            echo -e "${BLUE}    Pending Files:${NO_COLOR}"
-            echo "${default_changelist}"
-        fi
-        return 0
-    else
-        return 1
-    fi
+    p4 opened -u $1 -C $2 2> /dev/null | grep "${P4_DEFAULT_CHANGE}" || true #P4_DEFAULT_CHANGE from p4-help-functions
 }
 
 STEPS=9
@@ -89,18 +64,13 @@ print_progress() {
 
 trap cleanup SIGINT
 
+#setting up default flags
 VERBOSE_PRINT_SOFT_LIMIT=4
 NUMBER_OF_CHANGELISTS_LIMIT=100
-print_progress
-
-#setting up default flags
 CHANGELISTS_SHOWN_FLAG="-s pending"
-USER_FLAG="-u ${USER}"
-CLIENT_NAME=$(p4-client-name)   # sourced in p4-help-functions
 LIMIT_CHECK=1
-print_progress +
-clear_line
-echo -en "${RED}"
+
+echo -en "${RED}" >&2
 
 while getopts "h?vbnadlm:c:u:" opt; do
     case "${opt}" in
@@ -119,11 +89,9 @@ while getopts "h?vbnadlm:c:u:" opt; do
             ;;
         a)
             CHANGELISTS_SHOWN_FLAG=
-            BRIEF_PRINT=1
             ;;
         d)
             ONLY_DEFAULT_CHANGELIST=1
-            FORCE_VERBOSE=1
             ;;
         l)
             LIMIT_CHECK=
@@ -136,8 +104,7 @@ while getopts "h?vbnadlm:c:u:" opt; do
             CLIENT_NAME="${OPTARG}"
             ;;
         u)
-            USER_FLAG="-u ${OPTARG}"
-            CLIENT_NAME=
+            USER_OVERRIDE="${OPTARG}"
             ;;
         *)
             usage
@@ -147,45 +114,52 @@ while getopts "h?vbnadlm:c:u:" opt; do
 done
 shift $(( OPTIND - 1 ))
 
+echo -en "${NO_COLOR}" >&2
 print_progress
 
-if [[ "${CLIENT_NAME}" == "${HOSTNAME}" ]]; then
-    # perforce returns the hostname when not in a p4 client dir
-    echo -e "\r${RED}Not inside a p4 client directory - can't determine default client.${NO_COLOR}" >&2
-    echo -e "${RED}Move to a p4 client directory, or use the -c option.${NO_COLOR}" >&2
-    usage
-    exit 2
+if [[ -z "${CLIENT_NAME}" ]]; then
+    CLIENT_NAME=$(p4-client-name)   # sourced in p4-help-functions
+    if [[ "${CLIENT_NAME}" == "${HOSTNAME}" ]]; then
+        # perforce returns the hostname when not in a p4 client dir
+        clear_line
+        echo -e "\r${RED}Not inside a p4 client directory - can't determine default client." >&2
+        echo -e "Move to a p4 client directory, or use the -c option.${NO_COLOR}" >&2
+        usage
+        exit 2
+    fi
+    if [[ -n "${USER_OVERRIDE}" ]]; then
+        CLIENT_NAME=${CLIENT_NAME/${USER}/${USER_OVERRIDE}}
+        clear_line
+        echo "Using appropriate client ${CYAN}${CLIENT_NAME}${NO_COLOR} for user ${CYAN}${USER_OVERRIDE}${NO_COLOR}." >&2
+    fi
 fi
+print_progress +
 
-if [[ -n "${CLIENT_NAME}" ]]; then
-    CLIENT_FLAG="-c ${CLIENT_NAME}"
-    CLIENT_FLAG_FOR_OPEN="-C ${CLIENT_NAME}"  # p4 open requires capital C for client.
+if [[ -z "${USER_OVERRIDE}" ]]; then
+    USER_OVERRIDE="${USER}"
 fi
 
 if [[ -n ${FORCE_VERBOSE} ]]; then  # verbose takes precendence over brief
     FORCE_BRIEF=
 fi
 
-default_changelist=$(show-default-changelist ${FORCE_BRIEF} ${USER_FLAG} ${CLIENT_FLAG_FOR_OPEN} &)
+if [[ -n ${FORCE_BRIEF} ]]; then
+    BRIEF_PRINT=1
+fi
+
+default_changelist=$(show-default-changelist ${USER_OVERRIDE} ${CLIENT_NAME})
 print_progress +
 
 if [[ -z "${ONLY_DEFAULT_CHANGELIST}" ]]; then
-    changelists=$(p4 changes ${CHANGELISTS_SHOWN_FLAG} ${USER_FLAG} ${CLIENT_FLAG} ${RECENT_FLAG}) # split inorder to catch a login error.
+    changelists=$(p4 changes ${CHANGELISTS_SHOWN_FLAG} -u "${USER_OVERRIDE}" -c "${CLIENT_NAME}" ${RECENT_FLAG}) # split inorder to catch a login error.
     changelists=$(echo "${changelists}" | awk '{print $2}')
     print_progress +
 
     if [[ -n "${changelists}" ]]; then
         number_of_changelists=$(echo "${changelists}" | wc -l)
-        if [[ "${number_of_changelists}" -gt "${VERBOSE_PRINT_SOFT_LIMIT}" ]]; then
+        if [[ -z "${FORCE_VERBOSE}" && -z ${FORCE_BRIEF} &&
+            "${number_of_changelists}" -gt "${VERBOSE_PRINT_SOFT_LIMIT}" ]]; then
             BRIEF_PRINT=1
-        fi
-
-        if [[ -n ${FORCE_BRIEF} ]]; then
-            BRIEF_PRINT=1
-        fi
-
-        if [[ -n ${FORCE_VERBOSE} ]]; then
-            BRIEF_PRINT=
         fi
 
         if [[ "${number_of_changelists}" -gt "${NUMBER_OF_CHANGELISTS_LIMIT}" ]] && [[ -n "${LIMIT_CHECK}" ]]; then
@@ -228,5 +202,9 @@ clear_line
 
 wait
 if [[ -n "${default_changelist}" ]]; then
-    echo -e "${default_changelist}"
+    echo -e "${PURPLE}Default changelist${NO_COLOR}"
+    echo -e "${BLUE}    Pending Files${NO_COLOR}"
+    if [[ -z "${BRIEF_PRINT}" ]]; then
+        echo -e "${default_changelist}"
+    fi
 fi
