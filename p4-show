@@ -90,7 +90,7 @@ print_progress() {
 trap cleanup SIGINT
 
 VERBOSE_PRINT_SOFT_LIMIT=4
-NUMBER_OF_CHANGELISTS_LIMIT=25
+NUMBER_OF_CHANGELISTS_LIMIT=100
 print_progress
 
 #setting up default flags
