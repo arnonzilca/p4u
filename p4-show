@@ -12,6 +12,11 @@ clear_line() {
     echo -en "\r                                                                                           \r${NO_COLOR}" >&2
 }
 
+cleanup() {
+    clear_line
+    exit 2
+}
+
 usage() {
     clear_line
     echo '           /$$   /$$                   /$$' >&2
@@ -81,6 +86,8 @@ print_progress() {
     printf %$((STEPS-CURRENT_STEP))s >&2
     printf "] (%d%%)${NO_COLOR}" $((100 * CURRENT_STEP / STEPS)) >&2
 }
+
+trap cleanup SIGINT
 
 VERBOSE_PRINT_SOFT_LIMIT=4
 NUMBER_OF_CHANGELISTS_LIMIT=25
@@ -195,7 +202,11 @@ if [[ -z "${ONLY_DEFAULT_CHANGELIST}" ]]; then
         # using gnu parallel:
         # this will run p4-show-changelist for each changelist in 'changelists'.
         # it will also pass the BRIEF_PRINT single argument to each run.
-        RESULT="$(parallel --no-notice p4-show-changelist ::: ${changelists} ::: ${BRIEF_PRINT} 2> /dev/null)" || {
+        if which parallel > /dev/null 2> /dev/null; then
+            RESULT="$(parallel --no-notice p4-show-changelist ::: ${changelists} ::: ${BRIEF_PRINT} 2> /dev/null)"
+            clear_line
+            echo -e "${RESULT}"
+        else
             # iterate if parallel doesn't exist
             clear_line
             echo "${RED}Maybe it's time to install gnu's parallel (this script will work a lot faster...)${NO_COLOR}" >&2
@@ -205,9 +216,7 @@ if [[ -z "${ONLY_DEFAULT_CHANGELIST}" ]]; then
                 p4-show-changelist $changelist ${BRIEF_PRINT}
                 i=$(( i + 1 ))
             done
-        }
-        clear_line
-        echo -e "${RESULT}"
+        fi
         wait
         if [[ -n "${default_changelist}" ]]; then
             echo
