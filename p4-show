@@ -130,7 +130,7 @@ if [[ -z "${CLIENT_NAME}" ]]; then
     if [[ -n "${USER_OVERRIDE}" ]]; then
         CLIENT_NAME=${CLIENT_NAME/${USER}/${USER_OVERRIDE}}
         clear_line
-        echo "Using appropriate client ${CYAN}${CLIENT_NAME}${NO_COLOR} for user ${CYAN}${USER_OVERRIDE}${NO_COLOR}." >&2
+        echo "Using appropriate client ${CYAN}${CLIENT_NAME}${NO_COLOR}." >&2
     fi
 fi
 print_progress +
