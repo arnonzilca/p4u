@@ -38,7 +38,7 @@ for CHANGELIST in "$@"; do
 
     client=$(p4 change -o ${CHANGELIST} | awk '/^Client:/{print $2}')
 
-    p4-fix-hostname "${client}" "${FORCE}" || true
+    p4-fix-hostname "${client}" "${FORCE}"   # sourced in p4-help-functions
 
     p4 -c ${client} shelve -d -c ${CHANGELIST} 2> /dev/null || true
     files_to_revert=$(p4 -c "${client}" opened 2> /dev/null | grep "change ${CHANGELIST}" | sed "s/#.*//g") # sed returns true even for empty answer

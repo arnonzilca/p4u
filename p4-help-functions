@@ -58,14 +58,15 @@ p4-fix-hostname() {
 
     client_hostname="$(p4 client -o ${CLIENT} | grep "^Host" | awk '{print $2}')"
     if [[ "${client_hostname}" != "${HOSTNAME}" ]]; then
-        echo "Client hostname (${client_hostname}) differs from current hostname (${HOSTNAME})" >&2
+        echo "Client hostname (${client_hostname}) differs from current hostname (${HOSTNAME})," >&2
+        echo "and must be changed in order to continue." >&2
         if [[ -z "${FORCE}" ]]; then
             if ! promptyn "Are you sure you want to continue? (Y/n)"; then
                 echo -e "${CYAN}Saved by the bell.${NO_COLOR}" >&2
                 exit 0
             fi
         else
-            echo "Deleting anyway..." >&2
+            echo "Changing hostname..." >&2
         fi
         p4 client -o ${CLIENT} | sed "/^Host:/ s=${client_hostname}=${HOSTNAME}=" | p4 client -i > /dev/null
     fi
