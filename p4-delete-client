@@ -10,7 +10,7 @@ source "p4-help-functions"
 
 usage() {
     echo -en "${NO_COLOR}" >&2
-    echo    "$(basename $0) -- deletes the current client" >&2
+    echo    "$(basename $0) -- deletes a p4 client completely" >&2
     echo    "usage: $(basename $0) [options]" >&2
     echo    "  -h         shows this help" >&2
     echo    "  -f         force delete (no questions asked)" >&2
