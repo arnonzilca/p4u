@@ -16,7 +16,7 @@ usage() {
     echo    "  -h   shows this help" >&2
     echo    "  -s   sync after unshelve" >&2
     echo    "  -r   resolve conflicts" >&2
-    echo    "  -m   auto accept merges upon resolve" >&2
+    echo    "  -m   accept auto merge upon resolve" >&2
 }
 
 has-default-changelist() {
@@ -69,7 +69,7 @@ while getopts "h?srm" opt; do
             DO_RESOLVE=1
             ;;
         m)
-            ACCEPT_MERGE_FLAGS="-am"
+            ACCEPT_AUTO_MERGE=1
             ;;
         *)
             usage
@@ -155,12 +155,17 @@ if [[ -n "${CONTEXT_CHANGELIST}" ]]; then
     p4 shelve -d -c "${CONTEXT_CHANGELIST}"
 fi
 
-if [[ -n ${DO_SYNC} ]]; then
+if [[ -n "${DO_SYNC}" ]]; then
     echo "Syncing . . . "
     p4 sync
 fi
 
-if [[ -n ${DO_RESOLVE} ]]; then
+if [[ -n "${DO_RESOLVE}" ]]; then
     echo "Resolving . . . "
-    p4 resolve ${ACCEPT_MERGE_FLAGS}
+    if [[ -n "${ACCEPT_AUTO_MERGE}" ]]; then
+        p4 resolve -am
+        p4 resolve 2> /dev/null
+    else
+        p4 resolve
+    fi
 fi
