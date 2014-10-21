@@ -38,6 +38,7 @@ usage() {
     echo    "  -v           force verbose printing - including pending & shelved filenames" >&2
     echo    "  -b           force brief printing - no filenames (inferior to -v)" >&2
     echo    "  -n           no colors" >&2
+    echo    "  -o           force colors (when piping)" >&2
     echo    "  -a           show all changelists, not just pending" >&2
     echo    "  -d           show only the default changelist" >&2
     echo    "  -l           skip changelists limit check (${NUMBER_OF_CHANGELISTS_LIMIT})" >&2
@@ -72,7 +73,7 @@ LIMIT_CHECK=1
 
 echo -en "${RED}" >&2
 
-while getopts "h?vbnadlm:c:u:" opt; do
+while getopts "h?vbnoadlm:c:u:" opt; do
     case "${opt}" in
         h)
             usage
@@ -86,6 +87,10 @@ while getopts "h?vbnadlm:c:u:" opt; do
             ;;
         n)
             uncolor  # sourced in p4-help-functions
+            ;;
+        o)
+            export FORCE_COLORS=1
+            source "p4-help-functions"
             ;;
         a)
             CHANGELISTS_SHOWN_FLAG=

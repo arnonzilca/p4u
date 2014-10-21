@@ -10,13 +10,31 @@ source "p4-help-functions"
 
 usage() {
     echo "$(basename $0) -- prints the relevant changelist of a specific line in a file" >&2
-    echo "usage: $(basename $0) file line" >&2
+    echo "usage: $(basename $0) [options] file line" >&2
+    echo    "  -n   no colors" >&2
+    echo    "  -o   force colors (when piping)" >&2
 }
 
-if [[ $1 == "-h" ]]; then
-    usage
-    exit 0
-fi
+while getopts "h?no" opt; do
+    case "${opt}" in
+        h)
+            usage
+            exit 0
+            ;;
+        n)
+            uncolor  # sourced in p4-help-functions
+            ;;
+        o)
+            export FORCE_COLORS=1
+            source "p4-help-functions"
+            ;;
+        *)
+            usage
+            exit 1
+            ;;
+    esac
+done
+shift $(( OPTIND - 1 ))
 
 if [[ $# -ne 2 ]]; then
     echo "${RED}Missing arguments.${NO_COLOR}" >&2
