@@ -39,7 +39,7 @@ usage() {
     echo    "  -b           force brief printing - no filenames (inferior to -v)" >&2
     echo    "  -n           no colors" >&2
     echo    "  -o           force colors (when piping)" >&2
-    echo    "  -a           show all changelists, not just pending" >&2
+    echo    "  -a           show all non pending changelists (history)" >&2
     echo    "  -d           show only the default changelist" >&2
     echo    "  -l           skip changelists limit check (${NUMBER_OF_CHANGELISTS_LIMIT})" >&2
     echo    "  -m max       show the 'max' most recent changelists (not including the default changelist)" >&2
@@ -66,6 +66,7 @@ print_progress() {
 trap cleanup SIGINT
 
 #setting up default flags
+PRINT_DEFAULT_CHANGELIST=1
 VERBOSE_PRINT_SOFT_LIMIT=4
 NUMBER_OF_CHANGELISTS_LIMIT=100
 CHANGELISTS_SHOWN_FLAG="-s pending"
@@ -93,6 +94,7 @@ while getopts "h?vbnoadlm:c:u:" opt; do
             source "p4-help-functions"
             ;;
         a)
+            PRINT_DEFAULT_CHANGELIST=
             CHANGELISTS_SHOWN_FLAG=
             ;;
         d)
@@ -152,7 +154,9 @@ if [[ -n ${FORCE_BRIEF} ]]; then
     BRIEF_PRINT=1
 fi
 
-default_changelist=$(show-default-changelist ${USER_OVERRIDE} ${CLIENT_NAME})
+if [[ -n "${PRINT_DEFAULT_CHANGELIST}" ]]; then
+    default_changelist=$(show-default-changelist ${USER_OVERRIDE} ${CLIENT_NAME})
+fi
 print_progress +
 
 if [[ -z "${ONLY_DEFAULT_CHANGELIST}" ]]; then
