@@ -39,10 +39,10 @@ usage() {
     echo    "  -b           force brief printing - no filenames (inferior to -v)" >&2
     echo    "  -n           no colors" >&2
     echo    "  -o           force colors (when piping)" >&2
-    echo    "  -a           show all non pending changelists (history)" >&2
+    echo    "  -a           show all changelists (not just pending)" >&2
     echo    "  -d           show only the default changelist" >&2
     echo    "  -l           skip changelists limit check (${NUMBER_OF_CHANGELISTS_LIMIT})" >&2
-    echo    "  -m max       show the 'max' most recent changelists (not including the default changelist)" >&2
+    echo    "  -m max       show the 'max' most recent changelists (default changelist won't be shown)" >&2
     echo    "  -c client    filter by client" >&2
     echo    "  -u user      filter by user (the default in your case is ${USER})" >&2
 }
@@ -94,7 +94,6 @@ while getopts "h?vbnoadlm:c:u:" opt; do
             source "p4-help-functions"
             ;;
         a)
-            PRINT_DEFAULT_CHANGELIST=
             CHANGELISTS_SHOWN_FLAG=
             ;;
         d)
@@ -105,6 +104,7 @@ while getopts "h?vbnoadlm:c:u:" opt; do
             ;;
         m)
             RECENT_FLAG="-m ${OPTARG}"
+            PRINT_DEFAULT_CHANGELIST=
             LIMIT_CHECK=
             ;;
         c)
