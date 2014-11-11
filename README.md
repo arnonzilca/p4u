@@ -37,7 +37,7 @@ Allows switching the current changelist you're working on by shelving everything
 
 #### And Now, you want to work on changelist #1237177
 
-![image](https://cloud.githubusercontent.com/assets/4737096/3790300/32f72332-1af8-11e4-9fa7-027c927c20ce.png)
+![image](https://cloud.githubusercontent.com/assets/4737096/4993321/9c6977e6-69b5-11e4-9dc4-9ddbe05d95ef.png)
 
 #### After running [p4-switch-context](p4-switch-context) you're there:
 
