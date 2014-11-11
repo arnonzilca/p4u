@@ -144,6 +144,8 @@ if [[ -z "${changelists}" ]]; then
     exit 4
 fi
 
+opened=$(p4 opened 2> /dev/null)
+
 for changelist in ${changelists}; do
     if [[ ${CONTEXT_CHANGELISTS} != *${changelist}* ]]; then
         echo -n "${PRINT_COLOR}Changelist ${changelist} - ${NO_COLOR}"
@@ -159,7 +161,8 @@ for changelist in ${changelists}; do
                 echo -e "${PRINT_COLOR}shelve & revert${NO_COLOR}"
                 silent p4 shelve -c "${changelist}"
             fi
-            silent p4 revert -c "${changelist}" ...
+            files_to_revert=$(echo "${opened}" | grep "change $changelist" | sed "s/#.*//g")
+            silent p4 revert ${files_to_revert}
         else
             echo -e "${PRINT_COLOR}unchanged (shelved)${NO_COLOR}"
         fi
