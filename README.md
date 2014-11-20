@@ -76,7 +76,7 @@ Deletes current p4 client completely - deletes the client on the p4 server and t
 
 ## [p4-untracked](p4-untracked)
 
-Finds untracked (unadded) files in a specific p4 dir.
+Find untracked (unadded) files in a p4 directory.
 
 
 ## [p4-reshelve](p4-reshelve)
