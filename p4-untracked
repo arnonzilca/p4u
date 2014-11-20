@@ -9,8 +9,8 @@ set -e
 source "p4-help-functions"
 
 usage() {
-    echo "$(basename $0) -- finds untracked (unadded) files in a p4 dir" >&2
-    echo "usage: $(basename $0) [options] [dir]" >&2
+    echo "$(basename $0) -- finds untracked (unadded) files in a p4 dir(s)" >&2
+    echo "usage: $(basename $0) [options] [dir]..." >&2
     echo    "  -d   search depth (default is unlimited)" >&2
 }
 
@@ -31,10 +31,10 @@ while getopts "h?d:" opt; do
 done
 shift $(( OPTIND - 1 ))
 
-DIR="$1"
+DIR="$@"
 
 if [[ -z "${DIR}" ]]; then
     DIR="."
 fi
 
-find "${DIR}" ${MAX_DEPTH} -type f -print0 | xargs -0 p4 fstat 2>&1 >/dev/null | sed "s/ - no such file(s).//"
+find ${DIR} ${MAX_DEPTH} -type f -print0 | xargs -0 p4 fstat 2>&1 >/dev/null | sed "s/ - no such file(s).//"

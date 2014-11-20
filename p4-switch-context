@@ -12,7 +12,7 @@ source "p4-help-functions"
 usage() {
     echo -en "${NO_COLOR}" >&2
     echo    "$(basename $0) -- shelves all current changelists and unshelves certain changelists (if passed)." >&2
-    echo    "usage: $(basename $0) [options] [changelist...]" >&2
+    echo    "usage: $(basename $0) [options] [changelist]..." >&2
     echo    "  -h   shows this help" >&2
     echo    "  -k   keep shelves context changelists (don't delete shelves)"
     echo    "  -d   suppress default changelist warning"
