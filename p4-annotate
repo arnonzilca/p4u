@@ -37,7 +37,7 @@ done
 shift $(( OPTIND - 1 ))
 
 if [[ $# -ne 2 ]]; then
-    echo "${RED}Missing arguments.${NO_COLOR}" >&2
+    echo "${RED}Bad arguments.${NO_COLOR}" >&2
     usage
     exit 1
 fi

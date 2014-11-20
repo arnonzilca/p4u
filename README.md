@@ -74,6 +74,11 @@ Deletes current p4 client completely - deletes the client on the p4 server and t
 > Automatically deletes all changeslists, reverts all files & makes Matrix references! :)
 
 
+## [p4-untracked](p4-untracked)
+
+Finds untracked (unadded) files in a specific p4 dir.
+
+
 ## [p4-reshelve](p4-reshelve)
 
 Just as it sounds - reshelves a shelved changelist by the current pending files (old shelve is deleted).

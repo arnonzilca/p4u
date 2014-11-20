@@ -1,0 +1,24 @@
+#!/bin/bash
+#
+# Description: finds untracked (unadded) files in a p4 dir
+# Author: Arnon Zilca
+#
+
+set -e
+
+source "p4-help-functions"
+
+usage() {
+    echo "$(basename $0) -- finds untracked (unadded) files in a p4 dir" >&2
+    echo "usage: $(basename $0) dir" >&2
+}
+
+if [[ $# -ne 1 ]]; then
+    echo "${RED}Bad arguments.${NO_COLOR}" >&2
+    usage
+    exit 1
+fi
+
+DIR="$1"
+
+find "${DIR}" -type f -print0 | xargs -0 p4 fstat >/dev/null
