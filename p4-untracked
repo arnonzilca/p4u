@@ -37,4 +37,4 @@ if [[ -z "${DIR}" ]]; then
     DIR="."
 fi
 
-find "${DIR}" ${MAX_DEPTH} -type f -print0 | xargs -0 p4 fstat >/dev/null
+find "${DIR}" ${MAX_DEPTH} -type f -print0 | xargs -0 p4 fstat 2>&1 >/dev/null | sed "s/ - no such file(s).//"
