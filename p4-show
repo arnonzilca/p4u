@@ -12,11 +12,6 @@ clear_line() {
     echo -en "\r                                                                                           \r${NO_COLOR}" >&2
 }
 
-cleanup() {
-    clear_line
-    exit 2
-}
-
 usage() {
     clear_line
     echo '           /$$   /$$                   /$$' >&2
@@ -63,7 +58,15 @@ print_progress() {
     printf "] (%d%%)${NO_COLOR}" $((100 * CURRENT_STEP / STEPS)) >&2
 }
 
+cleanup() {
+    tput cnorm
+    clear_line
+    exit 2
+}
+
 trap cleanup SIGINT
+
+tput civis
 
 #setting up default flags
 PRINT_DEFAULT_CHANGELIST=1
@@ -217,3 +220,4 @@ if [[ -n "${default_changelist}" ]]; then
         echo -e "${default_changelist}"
     fi
 fi
+tput cnorm
