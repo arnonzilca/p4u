@@ -64,7 +64,7 @@ cleanup() {
     exit 2
 }
 
-trap cleanup SIGINT
+trap cleanup SIGINT SIGTERM ERR
 
 tput civis
 
