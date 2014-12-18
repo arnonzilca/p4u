@@ -32,13 +32,13 @@ if [[ $# -lt 1 ]]; then
     exit 1
 fi
 
+p4-fix-hostname "${client}" "${FORCE}"   # sourced in p4-help-functions
+
 for CHANGELIST in "$@"; do
     #make sure changelist exist.
     p4 describe -s ${CHANGELIST} > /dev/null # set -e will exit automatically if fails
 
     client=$(p4 change -o ${CHANGELIST} | awk '/^Client:/{print $2}')
-
-    p4-fix-hostname "${client}" "${FORCE}"   # sourced in p4-help-functions
 
     p4 -c ${client} shelve -d -c ${CHANGELIST} 2> /dev/null || true
     files_to_revert=$(p4 -c "${client}" opened 2> /dev/null | grep "change ${CHANGELIST}" | sed "s/#.*//g") # sed returns true even for empty answer
