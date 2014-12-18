@@ -10,9 +10,7 @@ clone this repository and put the directory in your PATH.
 
 ## [p4-show](p4-show)
 
-The most usefull script when working with perforce.
-
-It shows the current status of the relevant client, the current pending & shelved changelists as well as the default changelist.
+Shows the current status of the relevant client, the current pending & shelved changelists as well as the default changelist.
 
 ![image](https://cloud.githubusercontent.com/assets/4737096/3824370/576ba9d6-1d46-11e4-9728-81a2bb5ddfe7.png)
 
