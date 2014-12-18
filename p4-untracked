@@ -11,7 +11,7 @@ source "p4-help-functions"
 usage() {
     echo "$(basename $0) -- finds untracked (unadded) files in a p4 dir(s)" >&2
     echo "usage: $(basename $0) [options] [dir]..." >&2
-    echo    "  -d   search depth (default is unlimited)" >&2
+    echo    "  -d depth   search depth (default is unlimited)" >&2
 }
 
 while getopts "h?d:" opt; do
