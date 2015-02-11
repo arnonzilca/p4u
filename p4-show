@@ -61,7 +61,7 @@ print_progress() {
 cleanup() {
     tput cnorm
     clear_line
-    exit 2
+    exit 0
 }
 
 trap cleanup SIGINT SIGTERM ERR EXIT
@@ -220,4 +220,3 @@ if [[ -n "${default_changelist}" ]]; then
         echo -e "${default_changelist}"
     fi
 fi
-tput cnorm
