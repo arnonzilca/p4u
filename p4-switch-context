@@ -19,8 +19,8 @@ usage() {
     echo    "  -v   verbose mode"
     echo    "  -n   no colors"
     echo    "  -s   sync after unshelve" >&2
-    echo    "  -r   resolve conflicts" >&2
-    echo    "  -m   accept auto merge upon resolve" >&2
+    echo    "  -r   resolve all conflicts" >&2
+    echo    "  -m   resolve only auto merge (can be used with -r option to resolve auto merge automatically then manual)" >&2
     echo    "" >&2
     echo    "Note: When unshelving several changelists containing the same files, the order of unshelving" >&2
     echo    "will be the order of the passed changelists. Hence, the latter changelists will override the former's changes" >&2
@@ -193,12 +193,14 @@ if [[ -n "${DO_SYNC}" ]]; then
     p4 sync
 fi
 
-if [[ -n "${DO_RESOLVE}" ]]; then
-    echo -e "${PRINT_COLOR}Resolving . . . ${NO_COLOR}"
-    if [[ -n "${ACCEPT_AUTO_MERGE}" ]]; then
-        p4 resolve -am
+if [[ -n "${ACCEPT_AUTO_MERGE}" ]]; then
+    echo -e "${PRINT_COLOR}Resolving auto merge... ${NO_COLOR}"
+    p4 resolve -am
+    if [[ -n "${DO_RESOLVE}" ]]; then
+        echo -e "${PRINT_COLOR}Resolving manual... ${NO_COLOR}"
         p4 resolve 2> /dev/null
-    else
-        p4 resolve
     fi
+elif [[ -n "${DO_RESOLVE}" ]]; then
+    echo -e "${PRINT_COLOR}Resolving... ${NO_COLOR}"
+    p4 resolve
 fi
