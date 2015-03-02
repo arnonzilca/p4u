@@ -57,7 +57,7 @@ p4-fix-hostname() {
     FORCE="$2"
 
     client_hostname="$(p4 client -o ${CLIENT} | grep "^Host" | awk '{print $2}')"
-    if [[ "${client_hostname}" != "${HOSTNAME}" ]]; then
+    if [[ -n "${client_hostname}" && "${client_hostname}" != "${HOSTNAME}" ]]; then
         echo "Client hostname (${client_hostname}) differs from current hostname (${HOSTNAME})," >&2
         echo "and must be changed in order to continue." >&2
         if [[ -z "${FORCE}" ]]; then
