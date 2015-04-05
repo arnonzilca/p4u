@@ -19,8 +19,9 @@ if [[ "$1" == "-h" ]]; then
 fi
 
 if [[ "$#" -lt 1 ]]; then
-    usage
-    exit 1
+    changelist=$(p4-pick-changelist "show" 0 -b) # sourced in p4-help-functions
+else
+    changelist="$1"
 fi
 
 AFFECTED_TEXT="Affected files"
@@ -29,9 +30,9 @@ REVIEW_TEXT="ReviewBoard"
 BUG_TEXT="Jobs fixed"
 
 BRIEF_PRINT="$2"
-pending=$(p4 describe -s $1)    # split inorder to catch a login error.
+pending=$(p4 describe -s ${changelist})    # split inorder to catch a login error.
 pending=$(echo "${pending}" | sed '/^[\t]*$/d')
-shelved=$(p4 describe -Ss $1 2> /dev/null | sed '/^[\t]*$/d')
+shelved=$(p4 describe -Ss ${changelist} 2> /dev/null | sed '/^[\t]*$/d')
 
 description_lines=2
 if [[ -z "${BRIEF_PRINT}" ]]; then

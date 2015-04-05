@@ -19,9 +19,9 @@ if [[ "$1" == "-h" ]]; then
 fi
 
 if [[ $# -ne 1 ]]; then
-    echo "${RED}Bad arguments.${NO_COLOR}" >&2
-    usage
-    exit 1
+    changelist=$(p4-pick-changelist "unshelve") # sourced in p4-help-functions
+else
+    changelist="$1"
 fi
 
-p4 unshelve -s "$1" -c "$1"
+p4 unshelve -s "${changelist}" -c "${changelist}"

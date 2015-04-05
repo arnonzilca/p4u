@@ -27,14 +27,17 @@ if [[ "$1" == "-f" ]]; then
 fi
 
 if [[ $# -lt 1 ]]; then
-    echo "${RED}Missing changelist[s] arguments.${NO_COLOR}" >&2
-    usage
-    exit 1
+    CHANGELISTS="$(p4-pick-changelist "delete")"    # sourced in p4-help-functions
+    if [[ -z "${CHANGELISTS}" ]]; then
+        exit 0
+    fi
+else
+    CHANGELISTS="$@"
 fi
 
 p4-fix-hostname "${client}" "${FORCE}"   # sourced in p4-help-functions
 
-for CHANGELIST in "$@"; do
+for CHANGELIST in ${CHANGELISTS}; do
     #make sure changelist exist.
     p4 describe -s ${CHANGELIST} > /dev/null # set -e will exit automatically if fails
 
