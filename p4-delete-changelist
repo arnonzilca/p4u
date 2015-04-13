@@ -26,13 +26,10 @@ if [[ "$1" == "-f" ]]; then
     shift
 fi
 
-if [[ $# -lt 1 ]]; then
-    CHANGELISTS="$(p4-pick-changelist "delete")"    # sourced in p4-help-functions
-    if [[ -z "${CHANGELISTS}" ]]; then
-        exit 0
-    fi
-else
+if [[ $# -gt 0 ]]; then
     CHANGELISTS="$@"
+else
+    CHANGELISTS="$(p4-pick-changelist "delete")"    # sourced in p4-help-functions
 fi
 
 p4-fix-hostname "${client}" "${FORCE}"   # sourced in p4-help-functions

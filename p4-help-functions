@@ -99,19 +99,19 @@ p4-pick-changelist() {
 
     if [[ ${index} -eq 0 ]]; then
         echo "${RED}No changelists in current client.${NO_COLOR}" >&2
-        return 0
+        return 1
     fi
 
     if [[ -n "${DEFAULT_CHANGELIST_WARN}" ]] && echo "${P4_SHOW_RES}" | grep "${DEFAULT_REGEX}" > /dev/null; then
         if ! promptyn "${YELLOW}Default changelist detected! continue?${NO_COLOR} [Y/n]"; then
-            return 0
+            return 2
         fi
     fi
 
     result=
     if [[ ${index} -eq 1 ]]; then
         if ! promptyn "${VERB} ${changelists[1]}? [Y/n]"; then
-            return 0
+            return 2
         fi
 
         result=1
