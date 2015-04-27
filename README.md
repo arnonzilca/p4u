@@ -78,8 +78,8 @@ Deletes current p4 client completely - deletes the client on the p4 server and t
 > Automatically deletes all changeslists, reverts all files & makes Matrix references! :)
 
 > Solves the following:
-- [x] http://stackoverflow.com/q/5146055/3374591<br>
 - [x] http://stackoverflow.com/q/12296080/3374591
+- [x] http://stackoverflow.com/q/5146055/3374591<br>
 
 
 ## [p4-untracked](p4-untracked)
