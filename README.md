@@ -57,12 +57,18 @@ For example, if you use vim you can add this command to your vimrc:
 
 	command! Blame execute '!p4-annotate' . expand('%:p') . ' ' . line('.')
 
+> Solves the following:
+- [x] http://stackoverflow.com/q/25253353/3374591
+
 
 ## [p4-delete-changelist](p4-delete-changelist)
 
 Deletes a certain changelist overcoming a lot of p4 obstacles.
 
 > Automatically Deletes shelve, Reverts files, removes fixes (also fixes hostname in case changelist was created on a different host than it's deleted).
+
+> Solves the following:
+- [x] http://stackoverflow.com/q/24905002/3374591
 
 
 ## [p4-delete-client](p4-delete-client)
@@ -71,15 +77,24 @@ Deletes current p4 client completely - deletes the client on the p4 server and t
 
 > Automatically deletes all changeslists, reverts all files & makes Matrix references! :)
 
+> Solves the following:
+- [x] http://stackoverflow.com/q/5146055/3374591<br>
+- [x] http://stackoverflow.com/q/12296080/3374591
+
 
 ## [p4-untracked](p4-untracked)
 
 Find untracked (unadded) files in a p4 directory.
+> Solves the following:
+- [x] http://stackoverflow.com/q/9272/3374591
 
 
 ## [p4-reshelve](p4-reshelve)
 
-Just as it sounds - reshelves a shelved changelist by the current pending files (old shelve is deleted).
+Just as it sounds - reshelves a shelved changelist by the current pending files (old shelve is deleted - similar to -r option of shelve).
+
+> Solves the following:
+- [x] http://stackoverflow.com/q/23109580/3374591
 
 
 ## [p4-unshelve](p4-unshelve)
