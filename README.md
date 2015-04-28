@@ -18,7 +18,7 @@ It can also show historical information of the current p4 client, and highlight 
 
 ![image](https://cloud.githubusercontent.com/assets/4737096/3751349/881ddf24-17fe-11e4-8d29-a20fb5c10fe1.png)
 
-> Note that this script works a lot faster if [gnu-parallel][1] is installed.
+> Note that this script works a lot faster if [gnu-parallel](http://www.gnu.org/software/parallel/) is installed.
 > Moreover, Since this script is usually used daily - several times a day (at least by me),
 > it is recommended to alias it to a shorter phrase (`p4p`, `pp` or even just `p`).
 > Aliasing is also recommended for personalizing the script's configuration.
@@ -58,7 +58,7 @@ For example, if you use vim you can add this command to your vimrc:
 	command! Blame execute '!p4-annotate' . expand('%:p') . ' ' . line('.')
 
 > Solves the following:
-- [x] [http://stackoverflow.com/q/25253353](http://stackoverflow.com/q/25253353/3374591)
+- [x] [http://stackoverflow.com/q/25253353](http://goo.gl/xsmgHx)
 
 
 ## [p4-delete-changelist](p4-delete-changelist)
@@ -68,7 +68,7 @@ Deletes a certain changelist overcoming a lot of p4 obstacles.
 > Automatically Deletes shelve, Reverts files, removes fixes (also fixes hostname in case changelist was created on a different host than it's deleted).
 
 > Solves the following:
-- [x] [http://stackoverflow.com/q/24905002](http://stackoverflow.com/q/24905002/3374591)
+- [x] [http://stackoverflow.com/q/24905002](http://goo.gl/p2T9pR)
 
 
 ## [p4-delete-client](p4-delete-client)
@@ -78,15 +78,15 @@ Deletes current p4 client completely - deletes the client on the p4 server and t
 > Automatically deletes all changeslists, reverts all files & makes Matrix references! :)
 
 > Solves the following:
-- [x] [http://stackoverflow.com/q/12296080](http://stackoverflow.com/q/12296080/3374591)
-- [x] [http://stackoverflow.com/q/5146055](http://stackoverflow.com/q/5146055/3374591)
+- [x] [http://stackoverflow.com/q/12296080](http://goo.gl/91CvmN)
+- [x] [http://stackoverflow.com/q/5146055](http://goo.gl/1yueMh)
 
 
 ## [p4-untracked](p4-untracked)
 
 Find untracked (unadded) files in a p4 directory.
 > Solves the following:
-- [x] [http://stackoverflow.com/q/9272](http://stackoverflow.com/q/9272/3374591)
+- [x] [http://stackoverflow.com/q/9272](http://goo.gl/xUgdYi)
 
 
 ## [p4-reshelve](p4-reshelve)
@@ -94,7 +94,7 @@ Find untracked (unadded) files in a p4 directory.
 Just as it sounds - reshelves a shelved changelist by the current pending files (old shelve is deleted - similar to -r option of shelve).
 
 > Solves the following:
-- [x] [http://stackoverflow.com/q/23109580](http://stackoverflow.com/q/23109580/3374591)
+- [x] [http://stackoverflow.com/q/23109580](http://goo.gl/LTqASj)
 
 
 ## [p4-unshelve](p4-unshelve)
@@ -116,6 +116,3 @@ Pretty prints a changelist. It is used in [p4-show](p4-show) & [p4-annotate](p4-
 ## [p4-help-functions](p4-help-functions)
 
 This is an unrunnable file containting helper functions for other p4 scripts to source.
-
-
-[1]: http://www.gnu.org/software/parallel/
