@@ -85,17 +85,21 @@ p4-pick-changelist() {
     local P4_SHOW_RES="$(p4-show $@)"
 
     declare -a changelists=()
-    declare index=0
+    local index=0
 
+    # change IFS to keep leading spaces in the lines
+    OLD_IFS="${IFS}"
+    IFS=
     while read line; do
         if echo "${line}" | grep "${CHANGELIST_REGEX}" > /dev/null; then
             ((index += 1))
-            echo "(${index}) ${line}" >&2
+            echo -e "(${index}) ${line}" >&2
             changelists[${index}]=$(echo "${line}" | sed "s/${CHANGELIST_NUMBER_REGEX}/\1/")
         else
             echo "${line}" >&2
         fi
-    done < <(echo "${P4_SHOW_RES}")
+    done < <(echo -e "${P4_SHOW_RES}")
+    IFS="${OLD_IFS}"
 
     if [[ ${index} -eq 0 ]]; then
         echo "${RED}No changelists in current client.${NO_COLOR}" >&2
