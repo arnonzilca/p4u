@@ -14,6 +14,7 @@ usage() {
     echo    "$(basename $0) -- shelves all current changelists and unshelves certain changelists (if passed)." >&2
     echo    "usage: $(basename $0) [options] [changelist]..." >&2
     echo    "  -h   shows this help" >&2
+    echo    "  -p   pick a changelist to switch context to" >&2
     echo    "  -k   keep shelves context changelists (don't delete shelves)"
     echo    "  -d   suppress default changelist warning"
     echo    "  -v   verbose mode"
@@ -74,11 +75,14 @@ DELETE_SHELVED_MSG=" & delete shelve"
 
 echo -en "${RED}" >&2
 
-while getopts "h?kdvnsrm" opt; do
+while getopts "h?pkdvnsrm" opt; do
     case "${opt}" in
         h)
             usage
             exit 0
+            ;;
+        p)
+            CONTEXT_CHANGELISTS="$(p4-pick-changelist "switch context to")"
             ;;
         k)
             DELETE_SHELVED_MSG=
@@ -117,8 +121,9 @@ p4 login -s > /dev/null         # validate user is logged in
 #setting up default flags
 CLIENT_NAME=$(p4-client-name)   # sourced in p4-help-functions
 
-
-CONTEXT_CHANGELISTS="$@"
+if [[ -z "${CONTEXT_CHANGELISTS}" ]]; then
+    CONTEXT_CHANGELISTS="$@"
+fi
 
 if [[ -z "${CLIENT_NAME}" ]] || [[ "${CLIENT_NAME}" == "${HOSTNAME}" ]]; then
     # perforce returns the hostname when not in a p4 client dir
