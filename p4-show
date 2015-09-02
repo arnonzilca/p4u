@@ -59,9 +59,10 @@ print_progress() {
 }
 
 cleanup() {
+    exit_code=$?
     tput cnorm
     clear_line
-    exit 0
+    exit ${exit_code}
 }
 
 trap cleanup SIGINT SIGTERM ERR EXIT
