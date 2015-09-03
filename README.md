@@ -27,13 +27,13 @@ It can also show historical information of the current p4 client, and highlight 
 
 ## [p4-switch-context](p4-switch-context)
 
-Allows switching the current changelist you're working on by shelving everything arround and unshelving the requested changelist.
+Allows switching the current changelist you're working on by shelving everything arround and unshelving the requested changelist/s.
 
 #### Say this is your current p4 state:
 
 ![image](https://cloud.githubusercontent.com/assets/4737096/3790299/32f6d0bc-1af8-11e4-9f48-9a9a41a20666.png)
 
-#### And Now, you want to work on changelist #1237177
+#### And you want to work on changelist #1237177
 
 ![image](https://cloud.githubusercontent.com/assets/4737096/4993321/9c6977e6-69b5-11e4-9dc4-9ddbe05d95ef.png)
 
@@ -41,7 +41,7 @@ Allows switching the current changelist you're working on by shelving everything
 
 ![image](https://cloud.githubusercontent.com/assets/4737096/3790301/32f7e98e-1af8-11e4-8852-19d89f7d7afb.png)
 
-Run [p4-switch-context](p4-switch-context) without passing a changelist number when you want to start fresh and store all your current work. Everything will be shelved, and all pending work will be reverted.
+Run [p4-switch-context](p4-switch-context) without passing a changelist number when you want to start fresh and save all your current work. Everything will be shelved, and all pending work will be reverted.
 
 > You can also sync & resolve automatically after the switch is done (run with -h to see all the options).
 
@@ -55,7 +55,7 @@ It's helpful the most when combined with an editor.
 
 For example, if you use vim you can add this command to your vimrc:
 
-	command! Blame execute '!p4-annotate' . expand('%:p') . ' ' . line('.')
+	command! Blame execute '!p4-annotate -o ' . expand('%:p') . ' ' . line('.') . ' | less -XFr'
 
 > Solves the following:
 - [x] [http://stackoverflow.com/q/25253353](http://goo.gl/xsmgHx)
@@ -75,7 +75,7 @@ Deletes a certain changelist overcoming a lot of p4 obstacles.
 
 Deletes current p4 client completely - deletes the client on the p4 server and the local files.
 
-> Automatically deletes all changeslists, reverts all files & makes Matrix references! :)
+> Automatically deletes all changeslists, reverts all files.
 
 > Solves the following:
 - [x] [http://stackoverflow.com/q/12296080](http://goo.gl/91CvmN)
@@ -84,7 +84,7 @@ Deletes current p4 client completely - deletes the client on the p4 server and t
 
 ## [p4-untracked](p4-untracked)
 
-Find untracked (unadded) files in a p4 directory.
+Find untracked (unadded) files in p4 directories.
 > Solves the following:
 - [x] [http://stackoverflow.com/q/9272](http://goo.gl/xUgdYi)
 
