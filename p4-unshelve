@@ -19,7 +19,7 @@ if [[ "$1" == "-h" ]]; then
 fi
 
 if [[ $# -ne 1 ]]; then
-    changelist=$(p4-pick-changelist "unshelve") # sourced in p4-help-functions
+    changelist=$(p4-pick-changelist "unshelve" 0 -s) # sourced in p4-help-functions
 else
     changelist="$1"
 fi

@@ -34,7 +34,9 @@ usage() {
     echo    "  -b           force brief printing - no filenames (inferior to -v)" >&2
     echo    "  -n           no colors" >&2
     echo    "  -o           force colors (when piping)" >&2
-    echo    "  -a           show all changelists (not just pending)" >&2
+    echo    "  -p           show pending only (no shelved chagelists)" >&2
+    echo    "  -s           show shelved only (no pending chagelists)" >&2
+    echo    "  -a           show all changelists (not just current pending & shelved)" >&2
     echo    "  -d           show only the default changelist" >&2
     echo    "  -l           skip changelists limit check (${NUMBER_OF_CHANGELISTS_LIMIT})" >&2
     echo    "  -m max       show the 'max' most recent changelists (default changelist won't be shown)" >&2
@@ -78,7 +80,7 @@ LIMIT_CHECK=1
 
 echo -en "${RED}" >&2
 
-while getopts "h?vbnoadlm:c:u:" opt; do
+while getopts "h?vbnopsadlm:c:u:" opt; do
     case "${opt}" in
         h)
             usage
@@ -96,6 +98,13 @@ while getopts "h?vbnoadlm:c:u:" opt; do
         o)
             export FORCE_COLORS=1
             source "p4-help-functions"
+            ;;
+        p)
+            NO_SHELVED=1
+            ;;
+        s)
+            CHANGELISTS_SHOWN_FLAG="-s shelved"
+            PRINT_DEFAULT_CHANGELIST=
             ;;
         a)
             CHANGELISTS_SHOWN_FLAG=
@@ -164,8 +173,13 @@ fi
 print_progress +
 
 if [[ -z "${ONLY_DEFAULT_CHANGELIST}" ]]; then
-    changelists=$(p4 changes ${CHANGELISTS_SHOWN_FLAG} -u "${USER_OVERRIDE}" -c "${CLIENT_NAME}" ${RECENT_FLAG}) # split inorder to catch a login error.
-    changelists=$(echo "${changelists}" | awk '{print $2}')
+    changelists=$(p4 changes ${CHANGELISTS_SHOWN_FLAG} -u "${USER_OVERRIDE}" -c "${CLIENT_NAME}" ${RECENT_FLAG})
+    changelists=$(echo "${changelists}" | awk '{print $2}') # split inorder to catch a login error.
+    if [[ -n "${NO_SHELVED}" ]]; then
+        # sort lists and subtract
+        shelved=$(p4 changes -s shelved -u "${USER_OVERRIDE}" -c "${CLIENT_NAME}" | awk '{print $2}')
+        changelists=$(comm -23 <(echo "${changelists}" | sort) <(echo "${shelved}" | sort))
+    fi
     print_progress +
 
     if [[ -n "${changelists}" ]]; then
