@@ -22,11 +22,10 @@ while getopts "h?no" opt; do
             exit 0
             ;;
         n)
-            uncolor  # sourced in p4-help-functions
+            uncolor     # sourced in p4-help-functions
             ;;
         o)
-            export FORCE_COLORS=1
-            source "p4-help-functions"
+            force_color # sourced in p4-help-functions
             ;;
         *)
             usage

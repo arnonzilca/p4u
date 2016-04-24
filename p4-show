@@ -93,11 +93,10 @@ while getopts "h?vbnopsadlm:c:u:" opt; do
             FORCE_BRIEF="-b"
             ;;
         n)
-            uncolor  # sourced in p4-help-functions
+            uncolor     # sourced in p4-help-functions
             ;;
         o)
-            export FORCE_COLORS=1
-            source "p4-help-functions"
+            force_color # sourced in p4-help-functions
             ;;
         p)
             NO_SHELVED=1
