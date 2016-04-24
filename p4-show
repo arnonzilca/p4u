@@ -148,9 +148,10 @@ if [[ -z "${CLIENT_NAME}" ]]; then
         exit 2
     fi
     if [[ -n "${USER_OVERRIDE}" ]]; then
-        CLIENT_NAME=${CLIENT_NAME/${USER}/${USER_OVERRIDE}}
         clear_line
-        echo "Using appropriate client ${CYAN}${CLIENT_NAME}${NO_COLOR}." >&2
+        tput cnorm
+        CLIENT_NAME=$(p4-pick-client ${USER_OVERRIDE})  # sourced in p4-help-functions
+        tput civis
     fi
 fi
 print_progress +

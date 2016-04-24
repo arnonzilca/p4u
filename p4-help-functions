@@ -130,3 +130,41 @@ p4-pick-changelist() {
     echo >&2
     echo ${changelists[${result}]}
 }
+
+p4-pick-client() {
+    USER_OVERRIDE="$1"
+    local CLIENT_NUMBER_REGEX="^.*Client \([0-9]\+\) by.*"
+    local index=0
+    declare -a clients
+    while IFS="" read line; do
+        ((index += 1))
+        echo -e "${index}. ${line}" >&2
+        clients[${index}]=$(echo "${line}" | cut -d " " -f 2)
+    done < <(p4 clients -u ${USER_OVERRIDE})
+
+    if [[ ${index} -eq 0 ]]; then
+        echo "${RED}No clients for user ${USER_OVERRIDE}.${NO_COLOR}" >&2
+        return 1
+    fi
+
+    result=
+    if [[ ${index} -eq 1 ]]; then
+        if ! promptyn "${VERB} ${clients[1]}? [Y/n]"; then
+            return 2
+        fi
+
+        result=1
+    else
+        while [[ -z "${result}" ]]; do
+            read -p "Which client to pick? " chosen >&2
+            if [[ ${chosen} -lt 1 || ${chosen} -gt ${index} ]]; then
+                echo "Illegal client index." >&2
+            else
+                result="${chosen}"
+            fi
+        done
+    fi
+
+    echo >&2
+    echo ${clients[${result}]}
+}
