@@ -6,7 +6,10 @@
 
 set -e
 
-source "p4-help-functions"
+# get script dir path
+SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
+
+source "${SCRIPT_PATH}/p4-help-functions"
 
 usage() {
     echo "$(basename $0) -- prints the relevant changelist of a specific line in a file" >&2
@@ -54,7 +57,7 @@ if [[ -z $changelist ]]; then
 fi
 
 while [[ -n "$changelist" ]] && [[ "$changelist" != *[!0-9]* ]]; do # exist && a number
-    res=$(p4-show-changelist "$changelist")
+    res=$("${SCRIPT_PATH}/p4-show-changelist" "$changelist")
     echo "$res"
     echo
     # extract inner changelist (if exists)

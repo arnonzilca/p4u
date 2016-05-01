@@ -7,7 +7,10 @@
 
 set -e
 
-source "p4-help-functions"
+# get script dir path
+SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
+
+source "${SCRIPT_PATH}/p4-help-functions"
 
 usage() {
     echo -en "${NO_COLOR}" >&2
@@ -82,7 +85,7 @@ while getopts "h?pkdvnsrm" opt; do
             exit 0
             ;;
         p)
-            CONTEXT_CHANGELISTS="$(p4-pick-changelist "switch context to")"
+            CONTEXT_CHANGELISTS="$(p4-pick-changelist "switch context to")" # sourced in p4-help-functions
             ;;
         k)
             DELETE_SHELVED_MSG=
@@ -161,7 +164,7 @@ for changelist in ${changelists}; do
                     exit 5
                 fi
                 echo -e "${PRINT_COLOR}Changelist ${changelist} - reshelve & revert${NO_COLOR}"
-                silent p4-reshelve "${changelist}"
+                silent "${SCRIPT_PATH}/p4-reshelve" "${changelist}"
             else
                 echo -e "${PRINT_COLOR}shelve & revert${NO_COLOR}"
                 silent p4 shelve -c "${changelist}"
@@ -184,7 +187,7 @@ for context_changelist in ${CONTEXT_CHANGELISTS}; do
         else
             echo -e "${PRINT_COLOR}unshelve${DELETE_SHELVED_MSG}${NO_COLOR}"
             #unshelve context changelist
-            silent p4-unshelve "${context_changelist}"
+            silent "${SCRIPT_PATH}/p4-unshelve" "${context_changelist}"
             if [[ -z "${KEEP_SHELVED}" ]]; then
                 #delete context changelist shelve
                 silent p4 shelve -d -c "${context_changelist}"

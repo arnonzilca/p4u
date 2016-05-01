@@ -6,7 +6,10 @@
 
 set -e
 
-source "p4-help-functions"
+# get script dir path
+SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
+
+source "${SCRIPT_PATH}/p4-help-functions"
 
 clear_line() {
     echo -en "\r                                                                                           \r${NO_COLOR}" >&2
@@ -204,7 +207,7 @@ if [[ -z "${ONLY_DEFAULT_CHANGELIST}" ]]; then
         # this will run p4-show-changelist for each changelist in 'changelists'.
         # it will also pass the BRIEF_PRINT single argument to each run.
         if which parallel > /dev/null 2> /dev/null; then
-            RESULT="$(parallel --no-notice p4-show-changelist ::: ${changelists} ::: ${BRIEF_PRINT} 2> /dev/null)"
+            RESULT="$(parallel --no-notice "${SCRIPT_PATH}/p4-show-changelist" ::: ${changelists} ::: ${BRIEF_PRINT} 2> /dev/null)"
             clear_line
             echo -e "${RESULT}"
         else
@@ -214,7 +217,7 @@ if [[ -z "${ONLY_DEFAULT_CHANGELIST}" ]]; then
             i=1
             for changelist in ${changelists}; do
                 echo -ne "\r${CYAN}[${i}/${number_of_changelists}]${NO_COLOR} " >&2
-                p4-show-changelist $changelist ${BRIEF_PRINT}
+                "${SCRIPT_PATH}/p4-show-changelist" $changelist ${BRIEF_PRINT}
                 i=$(( i + 1 ))
             done
         fi

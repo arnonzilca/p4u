@@ -82,6 +82,9 @@ p4-fix-hostname() {
 }
 
 p4-pick-changelist() {
+    # get script dir path
+    SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
+
     local CHANGELIST_REGEX="Change [0-9]\+ by"
     local CHANGELIST_NUMBER_REGEX="^.*Change \([0-9]\+\) by.*"
     local DEFAULT_REGEX="Default changelist"
@@ -91,7 +94,7 @@ p4-pick-changelist() {
         local DEFAULT_CHANGELIST_WARN=1
     fi
     shift 2
-    local P4_SHOW_RES="$(p4-show $@)"
+    local P4_SHOW_RES="$("${SCRIPT_PATH}/p4-show" $@)"
 
     declare -a changelists=()
     local index=0

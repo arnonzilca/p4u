@@ -6,7 +6,10 @@
 
 set -e
 
-source "p4-help-functions"
+# get script dir path
+SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
+
+source "${SCRIPT_PATH}/p4-help-functions"
 
 usage() {
     echo "$(basename $0) -- unshelves a p4 changelist to its own changelist" >&2

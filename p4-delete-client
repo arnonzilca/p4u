@@ -6,7 +6,10 @@
 
 set -e
 
-source "p4-help-functions"
+# get script dir path
+SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
+
+source "${SCRIPT_PATH}/p4-help-functions"
 
 usage() {
     echo -en "${NO_COLOR}" >&2
@@ -114,7 +117,7 @@ if [[ -n "${changelists}" ]] || [[ -n "${default_changelist_files}" ]]; then
     fi
 
     if [[ -n "${changelists}" ]]; then
-        p4-delete-changelist ${FORCE} ${changelists}
+        "${SCRIPT_PATH}/p4-delete-changelist" ${FORCE} ${changelists}
     fi
 
     if [[ -n "${default_changelist_files}" ]]; then
