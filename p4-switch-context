@@ -137,7 +137,7 @@ if [[ -z "${CLIENT_NAME}" ]] || [[ "${CLIENT_NAME}" == "${HOSTNAME}" ]]; then
 fi
 
 if [[ -z "${SUPPRESS_DEFAULT_CHANGELIST_WARNING}" ]] && has-default-changelist; then
-    echo -e "${YELLOW}Warning: Pending default changelist detected - overlapping files will be overridden.${NO_COLOR}" >&2
+    echo -e "${YELLOW}Warning: Pending default changelist detected - overlapping files in pending changelists (to be) will be overridden.${NO_COLOR}" >&2
     if ! promptyn "Do you wish to continue? [Y/n]"; then    # sourced in p4-help-functions
         exit 3
     fi
