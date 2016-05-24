@@ -194,11 +194,13 @@ if [[ -z "${ONLY_DEFAULT_CHANGELIST}" ]]; then
 
         if [[ "${number_of_changelists}" -gt "${NUMBER_OF_CHANGELISTS_LIMIT}" ]] && [[ -n "${LIMIT_CHECK}" ]]; then
             clear_line
+            tput cnorm
             echo    "There are ${RED}${number_of_changelists}${NO_COLOR} changelists which answer your critereia!" >&2
             echo    "(You can disable this check using the -l option or you can limit the displyed changelists using the -m option)." >&2
             if ! promptyn "So, Have you flipped your wig? (continue?) [Y/n]"; then    # sourced in p4-help-functions
                 exit 0;
             fi
+            tput civis
             print_progress
         fi
         echo -en "${CYAN} - Fetching ${number_of_changelists} changelists . . .${NO_COLOR}" >&2
