@@ -8,13 +8,16 @@ P4_DEFAULT_CHANGE="default change"
 
 color() {
     if [[ -z "${UNCOLOR}" ]] && [[ -n "${FORCE_COLORS}" || -t 1 ]]; then
+        BLACK=$(tput setaf 0)
         RED=$(tput setaf 1)
         GREEN=$(tput setaf 2)
         YELLOW=$(tput setaf 3)
         BLUE=$(tput setaf 4)
         PURPLE=$(tput setaf 5)
         CYAN=$(tput setaf 6)
+        WHITE=$(tput setaf 7)
         NO_COLOR=$(tput sgr0)
+        BOLD=$(tput bold)
 
         # for sub commands using this helper that want to derive the color trait
         export FORCE_COLORS=1
