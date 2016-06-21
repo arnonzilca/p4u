@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Description: changes perforce context
 #  (shelving all pending and unshelving certain changelists if passed as an argument)

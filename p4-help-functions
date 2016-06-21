@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Description: holds helper functions for p4 scripts
 # Author: Arnon Zilca

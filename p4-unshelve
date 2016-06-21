@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Description: unshelves a p4 changelist to its own changelist
 # Author: Arnon Zilca

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Description: deletes a p4 changelist completely.
 #              removes its shelve, reverts the files
