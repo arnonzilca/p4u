@@ -54,6 +54,11 @@ promptyn() {
     done
 }
 
+p4-user-name() {
+    local USER_NAME_FIELD="User name: "
+    p4 info | grep "${USER_NAME_FIELD}" | sed "s/${USER_NAME_FIELD}//g"
+}
+
 p4-client-name() {
     local CLIENT_NAME_FIELD="Client name: "
     p4 info | grep "${CLIENT_NAME_FIELD}" | sed "s/${CLIENT_NAME_FIELD}//g"
@@ -182,4 +187,12 @@ p4-pick-client() {
 
     echo >&2
     echo ${clients[${result}]}
+}
+
+function p4-guess-username() {
+    USERNAME=$(p4-user-name)
+    if [[ -z "${USERNAME}" ]]; then
+        USERNAME=${USER}
+    fi
+    echo ${USERNAME}
 }

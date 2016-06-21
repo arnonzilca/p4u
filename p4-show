@@ -44,7 +44,7 @@ usage() {
     echo    "  -l           skip changelists limit check (${NUMBER_OF_CHANGELISTS_LIMIT})" >&2
     echo    "  -m max       show the 'max' most recent changelists (default changelist won't be shown)" >&2
     echo    "  -c client    filter by client" >&2
-    echo    "  -u user      filter by user (the default in your case is ${USER})" >&2
+    echo    "  -u user      filter by user (the default in your case is $(p4-guess-username))" >&2
 }
 
 show-default-changelist() {
@@ -159,7 +159,7 @@ fi
 print_progress +
 
 if [[ -z "${USER_OVERRIDE}" ]]; then
-    USER_OVERRIDE="${USER}"
+    USER_OVERRIDE=$(p4-guess-username)
 fi
 
 if [[ -n ${FORCE_VERBOSE} ]]; then  # verbose takes precendence over brief
