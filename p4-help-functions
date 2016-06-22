@@ -189,7 +189,7 @@ p4-pick-client() {
     echo ${clients[${result}]}
 }
 
-function p4-guess-username() {
+function p4-resolve-username() {
     USERNAME=$(p4-user-name)
     if [[ -z "${USERNAME}" ]]; then
         USERNAME=${USER}
