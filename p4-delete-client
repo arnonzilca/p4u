@@ -11,7 +11,7 @@ SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
 
 source "${SCRIPT_PATH}/p4-help-functions"
 
-USERNAME=$(p4-guess-username)
+USERNAME=$(p4-resolve-username)
 
 usage() {
     echo -en "${NO_COLOR}" >&2
