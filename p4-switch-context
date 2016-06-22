@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Description: changes perforce context
 #  (shelving all pending and unshelving certain changelists if passed as an argument)
@@ -143,7 +143,8 @@ if [[ -z "${SUPPRESS_DEFAULT_CHANGELIST_WARNING}" ]] && has-default-changelist; 
     fi
 fi
 
-changelists=$(p4 changes -s pending -u ${USER} -c ${CLIENT_NAME})
+USERNAME=$(p4-resolve-username)
+changelists=$(p4 changes -s pending -u ${USERNAME} -c ${CLIENT_NAME})
 changelists=$(echo "${changelists}" | awk '{print $2}')
 
 if [[ -z "${changelists}" ]]; then

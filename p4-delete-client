@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Description: deletes a p4 client completely
 # Author: Arnon Zilca
@@ -10,6 +10,8 @@ set -e
 SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
 
 source "${SCRIPT_PATH}/p4-help-functions"
+
+USERNAME=$(p4-resolve-username)
 
 usage() {
     echo -en "${NO_COLOR}" >&2
@@ -34,11 +36,11 @@ while getopts "h?fc:n" opt; do
             ;;
         c)
             CLIENT_NAME=${OPTARG}
-            CLIENT_FULL_STRING=$(p4 clients -u $USER | grep "${CLIENT_NAME}")
+            CLIENT_FULL_STRING=$(p4 clients -u ${USERNAME} | grep "${CLIENT_NAME}")
             CLIENT_NAME=$(echo ${CLIENT_FULL_STRING} | awk '{print $2}')
             if [[ -z "${CLIENT_NAME}" ]]; then
                 echo -e "${RED}Couldn't find client: ${CLIENT_NAME}" >&2
-                echo -e "Or client doesn't belong to you ($USER)${NO_COLOR}" >&2
+                echo -e "Or client doesn't belong to you (${USERNAME})${NO_COLOR}" >&2
                 usage
                 exit 2
             fi
@@ -80,7 +82,7 @@ if [[ -n "${NO_FILES}" || ! -d "${CLIENT_PATH}" ]]; then
     CLIENT_PATH=
 fi
 
-changelists=$(p4 changes -s pending -u $USER -c "${CLIENT_NAME}")   # split inorder to catch a login error.
+changelists=$(p4 changes -s pending -u ${USERNAME} -c "${CLIENT_NAME}")   # split inorder to catch a login error.
 changelists=$(echo "${changelists}" | awk '{print $2}')
 
 echo -e "Attempting to delete client: ${CYAN}${CLIENT_NAME}${NO_COLOR}"

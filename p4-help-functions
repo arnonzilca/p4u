@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Description: holds helper functions for p4 scripts
 # Author: Arnon Zilca
@@ -52,6 +52,11 @@ promptyn() {
             * ) echo "Please answer yes or no." >&2 ;;
         esac
     done
+}
+
+p4-user-name() {
+    local USER_NAME_FIELD="User name: "
+    p4 info | grep "${USER_NAME_FIELD}" | sed "s/${USER_NAME_FIELD}//g"
 }
 
 p4-client-name() {
@@ -182,4 +187,12 @@ p4-pick-client() {
 
     echo >&2
     echo ${clients[${result}]}
+}
+
+function p4-resolve-username() {
+    USERNAME=$(p4-user-name)
+    if [[ -z "${USERNAME}" ]]; then
+        USERNAME=${USER}
+    fi
+    echo ${USERNAME}
 }

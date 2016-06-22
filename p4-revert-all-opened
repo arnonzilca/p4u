@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Description: prints p4 changelists information (formatted and colored)
 # Author: Arnon Zilca

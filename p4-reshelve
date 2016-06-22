@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Description: reshelves a p4 shelved changelist
 #              deletes the current shevlve of a p4 changelist and
