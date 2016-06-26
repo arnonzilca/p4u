@@ -101,7 +101,7 @@ p4-pick-changelist() {
     SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
 
     local CHANGELIST_REGEX="Change [0-9]\+ by"
-    local CHANGELIST_NUMBER_REGEX="^.*Change \([0-9]\+\) by.*"
+    local CHANGELIST_NUMBER_REGEX="^.*Change ([0-9]+) by.*"
     local DEFAULT_REGEX="Default changelist"
 
     local VERB="$1"
@@ -119,7 +119,7 @@ p4-pick-changelist() {
         if echo "${line}" | grep "${CHANGELIST_REGEX}" > /dev/null; then
             ((index += 1))
             echo -e "(${index}) ${line}" >&2
-            changelists[${index}]=$(echo "${line}" | sed "s/${CHANGELIST_NUMBER_REGEX}/\1/")
+            changelists[${index}]=$(echo "${line}" | sed -E "s/${CHANGELIST_NUMBER_REGEX}/\1/")
         else
             echo "${line}" >&2
         fi
