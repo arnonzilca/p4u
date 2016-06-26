@@ -69,9 +69,11 @@ Deletes a certain changelist overcoming a lot of p4 obstacles.
 
 ## [p4-delete-client](p4-delete-client)
 
-Deletes current p4 client completely - deletes the client on the p4 server and the local files.
+Deletes current p4 client completely - deletes the client on the p4 server as well as the local files.
 
-> Automatically deletes all changeslists, reverts all files.
+> * Deletes all changeslists (reverts pending & deletes shelved).
+> * Fixes hostname (if differs from the one the client was created on)
+> * Unlocks client (if locked)
 
 > Solves the following:
 - [x] [http://stackoverflow.com/q/12296080](http://goo.gl/91CvmN)
