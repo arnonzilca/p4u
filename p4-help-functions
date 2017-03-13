@@ -118,7 +118,7 @@ p4-pick-changelist() {
     while IFS="" read line; do
         if echo "${line}" | grep "${CHANGELIST_REGEX}" > /dev/null; then
             ((index += 1))
-            echo -e "(${index}) ${line}" >&2
+            echo -e "${NO_COLOR}(${index}) ${line}" >&2
             changelists[${index}]=$(echo "${line}" | sed -E "s/${CHANGELIST_NUMBER_REGEX}/\1/")
         else
             echo "${line}" >&2
