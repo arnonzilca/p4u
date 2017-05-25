@@ -12,14 +12,26 @@ SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
 source "${SCRIPT_PATH}/p4-help-functions"
 
 usage() {
-    echo "usage: $(basename $0) changelist [brief-print]" >&2
-    echo "   brief-option -     any string" >&2
+    echo "usage: $(basename $0) [options] changelist" >&2
+    echo "   -b     brief printing of change" >&3
 }
 
-if [[ "$1" == "-h" ]]; then
-    usage
-    exit 0
-fi
+while getopts "h?b" opt; do
+    case "${opt}" in
+        h)
+            usage
+            exit 0
+            ;;
+        b)
+            BRIEF_PRINT=1
+            ;;
+        *)
+            usage
+            exit 1
+            ;;
+    esac
+done
+shift $(( OPTIND - 1 ))
 
 if [[ "$#" -lt 1 ]]; then
     changelist=$(p4-pick-changelist "show" 0 -b) # sourced in p4-help-functions
@@ -32,23 +44,25 @@ SHELVED_TEXT="Shelved files"
 REVIEW_TEXT="ReviewBoard"
 BUG_TEXT="Jobs fixed"
 
-BRIEF_PRINT="$2"
-pending=$(p4 describe -s ${changelist})    # split inorder to catch a login error.
-pending=$(echo "${pending}" | sed '/^[\t]*$/d')
-shelved=$(p4 describe -Ss ${changelist} 2> /dev/null | sed '/^[\t]*$/d')
-
-description_lines=2
-if [[ -z "${BRIEF_PRINT}" ]]; then
-    review_line=$(echo "${pending}" | grep -n "${REVIEW_TEXT}" | cut -f1 -d:)
-    bug_line=$(echo "${pending}" | grep -n "${BUG_TEXT}" | cut -f1 -d:)
-    affected_line=$(echo "${pending}" | grep -n "${AFFECTED_TEXT}" | cut -f1 -d:)
-
-    description_lines=$(echo -e "${review_line}\n${bug_line}\n${affected_line}" | sed '/^[\t]*$/d' | sort -g | head -n 1)
-    description_lines=$(( description_lines - 1 ))
-
+if [[ -n "${BRIEF_PRINT}" ]]; then
+    MAX_FILES="-m1"
 fi
-echo -e "${PURPLE}${pending}${NO_COLOR}" | head -n "${description_lines}"
+
+pending=$(p4 describe -s ${MAX_FILES} ${changelist} | sed '/^[\t]*$/d')
 is_pending=$(echo -e "${PURPLE}${pending}${NO_COLOR}" | head -n 1 | grep "\*pending\*" || true)
+if [[ -n "${is_pending}" ]]; then
+    # has shelved files only on pending changes
+    shelved=$(p4 describe -Ss ${MAX_FILES} ${changelist} 2> /dev/null | sed '/^[\t]*$/d')
+fi
+
+review_line=$(echo "${pending}" | grep -n "${REVIEW_TEXT}" | cut -f1 -d:)
+bug_line=$(echo "${pending}" | grep -n "${BUG_TEXT}" | cut -f1 -d:)
+affected_line=$(echo "${pending}" | grep -n "${AFFECTED_TEXT}" | cut -f1 -d:)
+
+
+description_lines=$(echo -e "${review_line}\n${bug_line}\n${affected_line}" | sed '/^[\t]*$/d' | sort -g | head -n 1)
+description_lines=$(( description_lines - 1 ))
+echo -e "${PURPLE}${pending}${NO_COLOR}" | head -n "${description_lines}"
 
 review=$(echo "${pending}" | grep "${REVIEW_TEXT}" || true)
 if [[ -n "${review}" ]]; then
@@ -101,4 +115,4 @@ if echo "${shelved}" | grep "${SHELVED_TEXT}" > /dev/null; then
         fi
     fi
 fi
-echo
+echo -e ${NO_COLOR}

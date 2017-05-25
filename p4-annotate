@@ -14,15 +14,21 @@ source "${SCRIPT_PATH}/p4-help-functions"
 usage() {
     echo "$(basename $0) -- prints the relevant changelist of a specific line in a file" >&2
     echo "usage: $(basename $0) [options] file line" >&2
+    echo    "  -v   verbose changelist print" >&2
     echo    "  -n   no colors" >&2
     echo    "  -o   force colors (when piping)" >&2
 }
 
-while getopts "h?no" opt; do
+BRIEF="-b"
+
+while getopts "h?vno" opt; do
     case "${opt}" in
         h)
             usage
             exit 0
+            ;;
+        v)
+            BRIEF=
             ;;
         n)
             uncolor     # sourced in p4-help-functions
@@ -57,7 +63,7 @@ if [[ -z $changelist ]]; then
 fi
 
 while [[ -n "$changelist" ]] && [[ "$changelist" != *[!0-9]* ]]; do # exist && a number
-    res=$("${SCRIPT_PATH}/p4-show-changelist" "$changelist")
+    res=$("${SCRIPT_PATH}/p4-show-changelist" $BRIEF "$changelist")
     echo "$res"
     echo
     # extract inner changelist (if exists)

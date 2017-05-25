@@ -167,7 +167,7 @@ if [[ -n ${FORCE_VERBOSE} ]]; then  # verbose takes precendence over brief
 fi
 
 if [[ -n ${FORCE_BRIEF} ]]; then
-    BRIEF_PRINT=1
+    BRIEF_PRINT="-b"
 fi
 
 if [[ -n "${PRINT_DEFAULT_CHANGELIST}" ]]; then
@@ -189,7 +189,7 @@ if [[ -z "${ONLY_DEFAULT_CHANGELIST}" ]]; then
         number_of_changelists=$(echo "${changelists}" | wc -l)
         if [[ -z "${FORCE_VERBOSE}" && -z ${FORCE_BRIEF} &&
             "${number_of_changelists}" -gt "${VERBOSE_PRINT_SOFT_LIMIT}" ]]; then
-            BRIEF_PRINT=1
+            BRIEF_PRINT="-b"
         fi
 
         if [[ "${number_of_changelists}" -gt "${NUMBER_OF_CHANGELISTS_LIMIT}" ]] && [[ -n "${LIMIT_CHECK}" ]]; then
@@ -209,7 +209,7 @@ if [[ -z "${ONLY_DEFAULT_CHANGELIST}" ]]; then
         # this will run p4-show-changelist for each changelist in 'changelists'.
         # it will also pass the BRIEF_PRINT single argument to each run.
         if which parallel > /dev/null 2> /dev/null; then
-            RESULT="$(parallel --no-notice "${SCRIPT_PATH}/p4-show-changelist" ::: ${changelists} ::: ${BRIEF_PRINT} 2> /dev/null)"
+            RESULT="$(parallel --no-notice "${SCRIPT_PATH}/p4-show-changelist" ::: ${BRIEF_PRINT} ::: ${changelists} 2> /dev/null)"
             clear_line
             echo -e "${RESULT}"
         else
@@ -219,7 +219,7 @@ if [[ -z "${ONLY_DEFAULT_CHANGELIST}" ]]; then
             i=1
             for changelist in ${changelists}; do
                 echo -ne "\r${CYAN}[${i}/${number_of_changelists}]${NO_COLOR} " >&2
-                "${SCRIPT_PATH}/p4-show-changelist" $changelist ${BRIEF_PRINT}
+                "${SCRIPT_PATH}/p4-show-changelist" ${BRIEF_PRINT} $changelist
                 i=$(( i + 1 ))
             done
         fi
